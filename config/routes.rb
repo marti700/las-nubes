@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
+  get 'files/index'
+  post 'files/upload', to: 'files#upload', as: 'upload'
+  get 'sessions/create', to: 'sessions#create', as: :sessions  
+  post 'sessions/create'
+  get 'sessions/new'
+    # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"

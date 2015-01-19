@@ -1,11 +1,17 @@
 source 'https://rubygems.org'
 
+#google's api client for execute GDrive actions
+gem 'google-api-client'
 #Use hamls instead of erb
 gem 'haml-rails'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
+#Use boostrap for styling
+gem 'bootstrap-sass', '~> 3.3.2'
+#Adds CSS prefixes 
+gem 'autoprefixer-rails'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets

@@ -1,0 +1,18 @@
+.container-fluid{id: :sidebar}
+  .row
+    .col-xs-2{id: :filesStructure}
+      %ul
+        %li Test File 1
+        %li Test File 2
+        %li Test File 3
+    .col-xs-9{id: :administrativeTasks}
+      =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
+        =f.file_field :Browse
+        =f.submit id: :uploadFile 
+  .row
+    .col-xs-2{id: :storageSettings}
+      %ul
+        %li GDrive
+        %li Dropbox
+        %li Mega
+ 
