@@ -1,0 +1,108 @@
+/.page-top{"data-spy" => "scroll", "data-target" => ".navbar-fixed-top"}
+/ Navigation
+
+%nav.navbar.navbar-default.navbar-fixed-top{:role => "navigation"}
+  .container
+    .navbar-header.page-scroll
+      %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", :type => "button"}
+        %span.sr-only Toggle navigation
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+      %a.navbar-brand.page-scroll{:href => "#page-top"}
+        %strong Las Nubes
+      / Collect the nav links, forms, and other content for toggling
+    .collapse.navbar-collapse.navbar-ex1-collapse
+      %ul.nav.navbar-nav#welcome-nav-bar
+        / Hidden li included to remove active class from about link when scrolled up past about section
+        %li.hidden
+          %a.page-scroll{:href => "#page-top"}
+        %li
+          %a.page-scroll{:href => "#about", :style => "WHITE"} About
+        %li
+          %a.page-scroll{:href => "#contact"} Contact
+        %li
+          =submit_tag "sign In", class: "btn btn-default sign-in-up-button", id: "sign-in-button"
+        %li
+          .sign-in
+            .form-signin
+              =form_tag({action: :index}, class: 'form-inline') do
+                .form-group
+                  =text_field_tag :user_name, nil, class: 'form-control', placeholder: 'User Name'
+                .form-group
+                  =password_field_tag :password, nil, class: 'form-control', placeholder: 'Password'
+                -#
+                  .form-group
+                    .checkbox
+                      =check_box_tag :remember_me 
+                      =label_tag :remember_me, "Remember me"
+                .form-group
+                  =submit_tag "Sign In", class: "btn btn-default", "style" => "margin-left 0.4%"
+        %li
+          =submit_tag "Sign Up", class: "btn btn-default sign-in-up-button", id: "sign-up-button"
+.sign-up
+  .form-signup
+    =form_tag({action: :index}, class: 'form-horizontal') do
+      .form-group
+        =label_tag :user_name
+        =text_field_tag :user_name, nil, class: 'form-control', placeholder: 'User Name'
+      .form-group
+        =label_tag :email, nil
+        =email_field_tag :email, nil, class: 'form-control', placeholder: 'Email'
+      .form-group
+        =label_tag :password, nil
+        =password_field_tag :password, nil, class: 'form-control', placeholder: 'Password'
+      .form-group
+        =label_tag :reenter_password
+        =password_field_tag :reenter_password, nil, class: 'form-control', placeholder: 'Re enter password'
+      .form-group
+        =submit_tag "Sign Up", class: "btn btn-default", "style" => "margin-left 0.4%"
+        =label_tag :Cancel,nil,class: "btn btn-default", "style" => "margin-left 0.4%", id: "cancel-signup-label"
+
+%header#intro.intro-header
+  .container
+    .row
+      .col-lg-12
+        %h1 
+          %Strong Las Nubes
+        %p
+          Cloud Storage made Easy
+        %a.btn.btn-default.page-scroll{:href => "#about"} Click Me to Scroll Down!
+-#
+  .form-signup
+    =form_tag({action: :index}, class: 'form-horizontal') do
+      .form-group
+        =label_tag :user_name, nil, class: 'col-sm-2'
+        .col-sm-10
+          =text_field_tag :user_name, nil, class: 'form-control', placeholder: 'User Name'
+      .form-group
+        =label_tag :email, nil, class: 'col-sm-2'
+        .col-sm-10
+          =email_field_tag :email, nil, class: 'form-control', placeholder: 'Email'
+      .form-group
+        =label_tag :password, nil, class: 'col-sm-2'
+        .col-sm-10
+          =password_field_tag :password, nil, class: 'form-control', placeholder: 'Password'
+      .form-group
+        =label_tag :reenter_password, nil,  class: 'col-sm-2'
+        .col-sm-10
+          =password_field_tag :reenter_password, nil, class: 'form-control', placeholder: 'Re enter password'
+      .form-group
+        .col-sm-offset-2.col-sm-10
+          .checkbox
+            =check_box_tag :remember_me 
+            =label_tag :remember_me, "Remember me"
+      .form-group
+        .col-sm-offset-2.col-sm-10
+          =submit_tag "Sign Up", class: "btn.btn-default"
+
+%section#about.about-section
+  .container
+    .row
+      .col-lg-12
+        %h1 Lorem ipsum dolor sit amet, assum veritus ceteros ea quo, ne nemore detraxit tacimates ius, ex nibh quodsi ius. Sed ei accumsan placerat, te nam dolor electram, ea ius atomorum instructior. Ut fuisset epicuri eum, brute malis docendi nec ne, mea tollit quodsi no. Utamur copiosae interpretaris at eum, ex sit principes gubergren conclusionemque, aperiam maluisset vim no. Eu usu diam illud primis, ad est utamur scribentur, nec ad eros sententiae.
+%section#contact.contact-section
+  .container
+    .row
+      .col-lg-12
+        %h1 Lorem ipsum dolor sit amet, assum veritus ceteros ea quo, ne nemore detraxit tacimates ius, ex nibh quodsi ius. Sed ei accumsan placerat, te nam dolor electram, ea ius atomorum instructior. Ut fuisset epicuri eum, brute malis docendi nec ne, mea tollit quodsi no. Utamur copiosae interpretaris at eum, ex sit principes gubergren conclusionemque, aperiam maluisset vim no. Eu usu diam illud primis, ad est utamur scribentur, nec ad eros sententiae.

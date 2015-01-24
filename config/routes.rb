@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'welcome/index'
+
   get 'files/index'
   post 'files/upload', to: 'files#upload', as: 'upload'
   get 'sessions/create', to: 'sessions#create', as: :sessions  
