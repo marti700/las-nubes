@@ -15,6 +15,28 @@ class GDriveManager
     response = Net::HTTP.post_form(uri, 'client_id' => client_id, 'client_secret' => client_secret, 'refresh_token' => refresh_token, 'grant_type' => 'refresh_token')
     JSON.parse(response.body)
   end
+  
+  def upload_to_gdrive a_file
+    drive = client.discovered_api('drive', 'v2')
+    file = Google::APIClient::UploadIO.new(a_file, 'image/png')
+
+    metadata = {
+      title: a_file.original_filename,
+      description: "it's Up yay!",
+      mimeType: "image/png"
+    }
+
+    result = client.execute(
+      api_method: drive.files.insert,
+      body_object: metadata,
+      media: file,
+      parameters: {
+        'uploadType' => 'multipart'
+      }
+    )
+
+  puts JSON.parse(result.data)
+  end
 end
 =begin
 puts l.get_new_google_access_token('180099244229-i2mfb4k2tj022615ripnkegqep3n4t15.apps.googleusercontent.com',

@@ -26,9 +26,9 @@
         %li
           .sign-in
             .form-signin
-              =form_tag({action: :index}, class: 'form-inline') do
+              =form_tag(user_login_path, :controller => 'sessions', class: 'form-inline') do
                 .form-group
-                  =text_field_tag :user_name, nil, class: 'form-control', placeholder: 'User Name'
+                  =text_field_tag :username, nil, class: 'form-control', placeholder: 'User Name'
                 .form-group
                   =password_field_tag :password, nil, class: 'form-control', placeholder: 'Password'
                 -#
@@ -42,10 +42,10 @@
           =submit_tag "Sign Up", class: "btn btn-default sign-in-up-button", id: "sign-up-button"
 .sign-up
   .form-signup
-    =form_tag({action: :index}, class: 'form-horizontal') do
+    =form_tag(user_create_path,:controller => 'users', class: 'form-horizontal') do
       .form-group
-        =label_tag :user_name
-        =text_field_tag :user_name, nil, class: 'form-control', placeholder: 'User Name'
+        =label_tag :username
+        =text_field_tag :username, nil, class: 'form-control', placeholder: 'User Name'
       .form-group
         =label_tag :email, nil
         =email_field_tag :email, nil, class: 'form-control', placeholder: 'Email'
@@ -53,8 +53,8 @@
         =label_tag :password, nil
         =password_field_tag :password, nil, class: 'form-control', placeholder: 'Password'
       .form-group
-        =label_tag :reenter_password
-        =password_field_tag :reenter_password, nil, class: 'form-control', placeholder: 'Re enter password'
+        =label_tag :password_confirmation
+        =password_field_tag :password_confirmation, nil, class: 'form-control', placeholder: 'Re enter password'
       .form-group
         =submit_tag "Sign Up", class: "btn btn-default", "style" => "margin-left 0.4%"
         =label_tag :Cancel,nil,class: "btn btn-default", "style" => "margin-left 0.4%", id: "cancel-signup-label"
@@ -64,6 +64,7 @@
     .row
       .col-lg-12
         %h1 
+          =flash[:notice]
           %Strong Las Nubes
         %p
           Cloud Storage made Easy

@@ -7,10 +7,12 @@ class FilesController < ApplicationController
   def upload
     puts params
     uploaded_io = params[:files][:Browse]
+    @user = GDriveManager.new
+    @user.upload_to_gdrive uploaded_io
     File.open(Rails.root.join('public', 'uploads', uploaded_io.original_filename), 'wb') do |file|
-      file.write(uploaded_io.read)
+      puts file.write(uploaded_io.read)
     end
-    flash[:notice] = "Post successfully created"
+    flash[:notice] = "file successfully uploaded"
     render action: :index
     #puts params
     #puts "ya llego la vaina"

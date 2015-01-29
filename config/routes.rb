@@ -1,11 +1,15 @@
 Rails.application.routes.draw do
-  get 'welcome/index'
-
-  get 'files/index'
-  post 'files/upload', to: 'files#upload', as: 'upload'
-  get 'sessions/create', to: 'sessions#create', as: :sessions  
-  post 'sessions/create'
-  get 'sessions/new'
+ # resources :users
+  get   'welcome/index'
+  get   'users/create'
+  post  'users/create', controller: :users, as: 'user_create'
+  post  'sessions/create', controller: :sessions, as: 'user_login'
+  get   'files/index'
+  post  'files/upload', to: 'files#upload', as: 'upload'
+  get   'sessions/create', to: 'sessions#create', as: :sessions  
+  post  'sessions/create'
+  get   'sessions/new'
+  
     # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
