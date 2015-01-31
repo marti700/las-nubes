@@ -6,7 +6,7 @@ class GDriveManager
     @client = Google::APIClient.new
     @client.authorization.client_id = '180099244229-i2mfb4k2tj022615ripnkegqep3n4t15.apps.googleusercontent.com'
     @client.authorization.client_secret = 'kOd5dswJJE6tfBI0cCa5oI6R'
-    @client.authorization.redirect_uri = 'https://lasnubes.ngrok.com/sessions/create'
+    @client.authorization.redirect_uri = 'https://lasnubes.ngrok.com/users/get_authorization_codes'
     @client.authorization.scope = 'https://www.googleapis.com/auth/drive' 
   end
 
@@ -17,7 +17,8 @@ class GDriveManager
   end
   
   def upload_to_gdrive a_file
-    drive = client.discovered_api('drive', 'v2')
+    client = YAML.load(File.read("/home/teodoro/Documents/Projects/RubyProjects/las_nubes/users/obj.yml"))
+    drive = client.client.discovered_api('drive', 'v2')
     file = Google::APIClient::UploadIO.new(a_file, 'image/png')
 
     metadata = {
@@ -26,7 +27,7 @@ class GDriveManager
       mimeType: "image/png"
     }
 
-    result = client.execute(
+    result = client.client.execute(
       api_method: drive.files.insert,
       body_object: metadata,
       media: file,
@@ -35,7 +36,7 @@ class GDriveManager
       }
     )
 
-  puts JSON.parse(result.data)
+  puts result.data.to_s
   end
 end
 =begin
