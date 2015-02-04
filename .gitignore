@@ -17,5 +17,6 @@
 /tmp
 #other stugg
 *~
+*.swp
 /users/*
 /public/uploads/*

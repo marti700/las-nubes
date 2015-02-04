@@ -16,9 +16,10 @@ class UsersController < ApplicationController
       flash[:notice] = "Opps, something went wrong with you request, looks like the form is invalid"
       flash[:color] = "invalid"
     end
-    redirect_to "/users/ask_for_access"
-    puts `mkdir -p "#{Rails.root.to_s}/users/#{@user.username}"`
     session[:user_id] = @user.id
+    puts session[:user_id]
+    redirect_to "/users/ask_for_access"
+    #puts `mkdir -p "#{Rails.root.to_s}/users/#{@user.username}"`
     #byebug
   end
   
@@ -27,6 +28,7 @@ class UsersController < ApplicationController
   end
 
   def get_authorization_codes
+    session[:user_id]
     @user = User.find(session[:user_id])
     puts @user.inspect
     @user_gdrive.client.authorization.code = params[:code]
