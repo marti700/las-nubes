@@ -20,3 +20,4 @@
 *.swp
 /users/*
 /public/uploads/*
+client_secret.json

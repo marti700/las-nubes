@@ -11,16 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150127035416) do
+ActiveRecord::Schema.define(version: 20150204235708) do
 
   create_table "users", force: :cascade do |t|
     t.string   "username"
     t.string   "email"
     t.string   "password"
     t.string   "salt"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
     t.string   "password_digest"
+    t.string   "google_refresh_token"
+    t.string   "google_access_code"
   end
 
 end

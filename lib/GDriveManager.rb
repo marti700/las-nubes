@@ -13,11 +13,11 @@ class GDriveManager
   def get_new_google_access_token client_id, client_secret, refresh_token, grant_type='refresh_token'
     uri = URI('https://www.googleapis.com/oauth2/v3/token')
     response = Net::HTTP.post_form(uri, 'client_id' => client_id, 'client_secret' => client_secret, 'refresh_token' => refresh_token, 'grant_type' => 'refresh_token')
-    JSON.parse(response.body)
+    return JSON.parse(response.body)
   end
   
-  def upload_to_gdrive a_file
-    client = YAML.load(File.read("/home/teodoro/Documents/Projects/RubyProjects/las_nubes/users/obj.yml"))
+  def upload_to_gdrive a_file, google_access_code
+    client.authorization.access_code = google_access_code
     drive = client.client.discovered_api('drive', 'v2')
     file = Google::APIClient::UploadIO.new(a_file, 'image/png')
 
@@ -34,9 +34,9 @@ class GDriveManager
       parameters: {
         'uploadType' => 'multipart'
       }
-    )
-
-  puts result.data.to_s
+    ) 
+    return :invalid_access_code if result.status == 200 
+    puts result.data.to_s
   end
 end
 =begin

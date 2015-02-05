@@ -17,7 +17,6 @@ class UsersController < ApplicationController
       flash[:color] = "invalid"
     end
     session[:user_id] = @user.id
-    puts session[:user_id]
     redirect_to "/users/ask_for_access"
     #puts `mkdir -p "#{Rails.root.to_s}/users/#{@user.username}"`
     #byebug
@@ -28,16 +27,12 @@ class UsersController < ApplicationController
   end
 
   def get_authorization_codes
-    session[:user_id]
-    @user = User.find(session[:user_id])
-    puts @user.inspect
+    user = User.find session[:user_id]
     @user_gdrive.client.authorization.code = params[:code]
     puts @user_gdrive.client.authorization.fetch_access_token!
-    puts(`mkdir -p "#{Rails.root.to_s}/users"`)
-    File.open("#{Rails.root.to_s}/users/obj.yml", "w") do |f|
-      f.write(YAML.dump(@user_gdrive))
-    end
-
+    user.update_attribute :google_refresh_token, @user_gdrive.client.authorization.refresh_token
+    user.update_attribute :google_access_code, @user_gdrive.client.authorization.access_token
+    #byebug
     redirect_to "/files/index"
   end
   
