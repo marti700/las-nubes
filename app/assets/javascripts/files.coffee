@@ -3,6 +3,6 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 $(document).ready -> 
-  $("#files_Browse").on "change", ->
-    $("#uploadFile").trigger "click"
+  $("#uploadForm").fileupload()
+
      
