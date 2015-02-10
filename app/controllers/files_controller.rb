@@ -8,19 +8,17 @@ class FilesController < ApplicationController
     #gets the file reference from the browser 
     uploaded_io = params[:files][:Browse]
     
+    logged_user = User.find(session[:user_id])
     google_action = GDriveManager.new
-    #if the google access_token hava already expired 
-    if google_action.upload_to_gdrive(uploaded_io, User.find(session[:user_id]).google_access_code) == :invalid_access_code
-      #request a new access_token
-      GDriveManager.get_new_google_access_token User.find(session[:user_id]).google_refresh_token
-    end
-    
-    #File.open(Rails.root.join('public', 'uploads', uploaded_io.original_filename), 'wb') do |file|
-     # puts file.write(uploaded_io.read)
-    #end
-    #flash[:notice] = "file successfully uploaded"
+    begin
+      #if the google access_token hava already expired 
+      google_action.upload_to_gdrive uploaded_io, logged_user.google_access_code
+    rescue ArgumentError #the provided access_token was invalid it says "Missing authorization code"
+      #request a new access_token and updte the google_access_code field in the database for the currently logged user
+      logged_user.update_attribute :google_access_code, GDriveManager.get_new_google_access_token(logged_user.google_refresh_token)["access_token"]
+      #retry the upload
+      google_action.upload_to_gdrive uploaded_io, logged_user.google_access_code
+    end 
     render action: :index
-    #puts params
-    #puts "ya llego la vaina"
   end
 end
