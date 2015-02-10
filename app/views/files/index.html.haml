@@ -1,3 +1,6 @@
 =render "basicStructure"
-%h1 Files#index
-%p Find me in app/views/files/index.html.haml
+%script#template-upload{type: "text/x-tmpl"}
+  .upload
+    {%=o.name%}
+    .progress 
+      .bar{style: "width: 0%"}
