@@ -21,7 +21,7 @@ class GDriveManager
     return JSON.parse(response.body)
   end
   
-  def upload_to_gdrive a_file, google_access_code
+  def upload a_file, google_access_code
     #uploads files to google drive
     
     self.client.authorization.access_token = google_access_code
@@ -44,6 +44,20 @@ class GDriveManager
     ) 
     return :invalid_access_code if result.status != 200 
     puts result.data.to_s
+  end
+  def get_all_files google_access_code
+    self.client.authorization.access_token = google_access_code
+    drive = self.client.discovered_api('drive', 'v2')
+
+    result = client.execute(
+      api_method: drive.files.list
+    )
+
+    if result.status == 200
+      return result.data.items
+    else
+      puts "An error occurred: #{result.data['error']['message']}"
+    end
   end
 end
 

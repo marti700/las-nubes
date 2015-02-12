@@ -6,9 +6,25 @@
         %li Test File 2
         %li Test File 3
     .col-xs-9{id: :administrativeTasks}
-      =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
-        =f.file_field :Browse
-        =f.submit id: :uploadFile 
+      #actions
+        =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
+          =f.file_field :Browse
+          =f.submit id: :uploadFile 
+      %table.table.table-hover.table-bordered
+        %tr
+          %th Name
+          %th Size
+          %th Type
+        -@all_files.each do |file|
+          %tr
+            %td 
+              =file.title
+            %td 
+              =file.file_extension
+            %td 
+              =file.file_size
+
+
   .row
     .col-xs-2{id: :storageSettings}
       %ul
