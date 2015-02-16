@@ -47,8 +47,8 @@ class UsersController < ApplicationController
 
   def get_dropbox_access_code
     #exchange the user permition code (obtained when the user grant acess to the app) for an access code
-    @flow.finish params
-    puts params
+    user = User.find session[:user_id]
+    user.update_attribute :dropbox_access_code, @flow.finish(params)[0]
     redirect_to "/files/index"
   end
   
