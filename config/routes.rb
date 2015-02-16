@@ -2,7 +2,9 @@ Rails.application.routes.draw do
  # resources :users
   get   'welcome/index'
   get   'users/ask_for_access'
+  get   'users/ask_for_dropbox_access'
   get   'users/get_authorization_codes'
+  get   'users/get_dropbox_access_code'
   get   'users/create'
   post  'users/create', controller: :users, as: 'user_create'
   post  'sessions/create', controller: :sessions, as: 'user_login'

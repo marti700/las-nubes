@@ -21,3 +21,4 @@
 /users/*
 /public/uploads/*
 client_secret.json
+dropbox_secret.json
