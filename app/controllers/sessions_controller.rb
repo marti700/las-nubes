@@ -16,7 +16,7 @@ class SessionsController < ApplicationController
       redirect_to "/files/index"
     else
       redirect_to "/welcome/index", notice: "your user name or password is invalid"
-            end
+    end
     #end
 
   end

@@ -1,8 +1,12 @@
 require 'dropbox_sdk'
 class DropboxManager
-  def initialize
-    @app_key = 's5d0zexa7cj61qy'
-    @app_secret = 'ptrxv1ud3l9wgur'
+  attr_accessor :dropbox_client
+  def initialize dropbox_access_token
+    @dropbox_client = DropboxClient.new dropbox_access_token
+  end
+
+  def upload a_file
+    result = dropbox_client.put_file a_file.original_filename, a_file.read
   end
 end
 

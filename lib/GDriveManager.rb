@@ -21,11 +21,11 @@ class GDriveManager
     return JSON.parse(response.body)
   end
   
-  def upload a_file, google_access_code
+  def upload a_file
     #uploads files to google drive
     
-    self.client.authorization.access_token = google_access_code
-    drive = self.client.discovered_api('drive', 'v2')
+    #self.client.authorization.access_token = google_access_code
+    drive = self.gdrive.client.discovered_api('drive', 'v2')
     file = Google::APIClient::UploadIO.new(a_file, 'image/png')
 
     metadata = {
@@ -34,7 +34,7 @@ class GDriveManager
       mimeType: "image/png"
     }
 
-    result = self.client.execute(
+    result = self.gdrive.client.execute(
       api_method: drive.files.insert,
       body_object: metadata,
       media: file,
@@ -49,7 +49,7 @@ class GDriveManager
     self.client.authorization.access_token = google_access_code
     drive = self.client.discovered_api('drive', 'v2')
 
-    result = client.execute(
+    result = self.client.execute(
       api_method: drive.files.list
     )
 

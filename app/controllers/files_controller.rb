@@ -1,6 +1,6 @@
 class FilesController < ApplicationController
-  require 'GDriveManager.rb'
-  
+  require 'GDriveManager'
+  require 'FilesHandler'
   def index
     logged_user = User.find(session[:user_id])
     google_action = GDriveManager.new
@@ -17,6 +17,10 @@ class FilesController < ApplicationController
     uploaded_io = params[:files][:Browse]
     
     logged_user = User.find(session[:user_id])
+    files_uploader = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
+    files_uploader.upload 'dropbox', uploaded_io
+
+=begin
     google_action = GDriveManager.new
     begin
       #if the google access_token hava already expired 
@@ -27,6 +31,7 @@ class FilesController < ApplicationController
       #retry the upload
       google_action.upload uploaded_io, logged_user.google_access_code
     end 
+=end
     render action: :index
   end 
 end
