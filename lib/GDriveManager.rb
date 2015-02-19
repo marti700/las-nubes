@@ -1,5 +1,6 @@
 require 'google/api_client'
 require 'net/http'
+require 'LNFile'
 
 class GDriveManager
   attr_accessor :client
@@ -45,8 +46,8 @@ class GDriveManager
     return :invalid_access_code if result.status != 200 
     puts result.data.to_s
   end
-  def get_all_files google_access_code
-    self.client.authorization.access_token = google_access_code
+  def get_all_files
+    #self.client.authorization.access_token = google_access_code
     drive = self.client.discovered_api('drive', 'v2')
 
     result = self.client.execute(
@@ -54,10 +55,21 @@ class GDriveManager
     )
 
     if result.status == 200
-      return result.data.items
+      clean_result result.data.items
     else
       puts "An error occurred: #{result.data['error']['message']}"
     end
+  end
+
+  def clean_result result
+    files = Array.new
+    result.each do |file|
+      file_name = file.title
+      file_size = file.file_size
+      file_type = file.file_extension
+      files.push LNFile.new file_name, file_size, file_type
+    end
+   files 
   end
 end
 

@@ -15,14 +15,14 @@
           %th Name
           %th Size
           %th Type
-        -@all_files.each do |file|
+        -@all_files.each do |key,value|
           %tr
             %td 
-              =file.title
+              =value.name
             %td 
-              =file.file_extension
+              =value.type
             %td 
-              =file.file_size
+              =value.size
 
 
   .row

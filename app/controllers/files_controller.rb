@@ -1,15 +1,18 @@
 class FilesController < ApplicationController
-  require 'GDriveManager'
   require 'FilesHandler'
   def index
     logged_user = User.find(session[:user_id])
-    google_action = GDriveManager.new
+    files = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
+    @all_files = files.get_all_files
+    
+=begin    
     begin
-      @all_files = google_action.get_all_files logged_user.google_access_code
+      @all_files = file_list.get_all_files
     rescue ArgumentError
       logged_user.update_attribute :google_access_code, GDriveManager.get_new_google_access_token(logged_user.google_refresh_token)["access_token"]
       @all_files = google_action.get_all_files logged_user.google_access_code
     end
+=end
   end
 
   def upload
