@@ -4,6 +4,7 @@ require 'LNFile'
 class DropboxManager
   attr_accessor :dropbox_client
   def initialize dropbox_access_token
+    @@dropbox_files = 0;
     @dropbox_client = DropboxClient.new dropbox_access_token
   end
 
@@ -11,19 +12,24 @@ class DropboxManager
     result = dropbox_client.put_file a_file.original_filename, a_file.read
   end
 
-  def get_all_files
-    clean_result dropbox_client.metadata('/')["contents"]
+  def get_all_files path="/"
+    id_prefix = "b"
+    all_files = Hash.new
+    puts path
+    clean_result(dropbox_client.metadata(path)["contents"]).each do |file|
+      all_files.store(id_prefix + @@dropbox_files.to_s, file) 
+      @@dropbox_files += 1
+    end
+    all_files
   end
 
   def clean_result result
     files = Array.new
     result.each do |file|
-      file_and_extension = file["path"].split('/').last #Takes the word after the last /
-      file_extension = file_and_extension.split '.'
-      file_name = file_extension[0]
-      file_type = file_extension[1]
+      file_name = file["path"].split('/').last #Takes the word after the last '/' which is the file name
+      file["is_dir"] ? file_type = "folder" : file_type = file["mime_type"].split('/').last 
       file_size = file["bytes"].to_s
-      files.push LNFile.new file_name, file_size, file_type   
+      files.push LNFile.new file_name, file_size, file_type, file["path"], 'dropbox'   
     end
     files
   end

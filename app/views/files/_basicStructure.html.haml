@@ -10,21 +10,12 @@
         =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
           =f.file_field :Browse
           =f.submit id: :uploadFile 
-      %table.table.table-hover.table-bordered
+      %table.table.table-hover.table-bordered#files-table
         %tr
           %th Name
           %th Size
           %th Type
-        -@all_files.each do |key,value|
-          %tr
-            %td 
-              =value.name
-            %td 
-              =value.type
-            %td 
-              =value.size
-
-
+        =render "updatedFileList"
   .row
     .col-xs-2{id: :storageSettings}
       %ul

@@ -3,7 +3,23 @@ class FilesController < ApplicationController
   def index
     logged_user = User.find(session[:user_id])
     files = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
-    @all_files = files.get_all_files
+    respond_to do |format|
+      format.html {
+        if params["pathOrigin"] != nil
+          origin_path = params["pathOrigin"].split(':')
+          @all_files = files.get_all_files origin_path.first, origin_path.last 
+          render "_updatedFileList"
+        else
+          @all_files = files.get_all_files
+        end
+      }
+      format.js {
+        origin_path = params["pathOrigin"].split(':')
+        @all_files = files.get_all_files origin_path.first, origin_path.last
+        render "index.coffee.erb"
+      }
+    end
+
     
 =begin    
     begin

@@ -1,0 +1,10 @@
+-@all_files.each do |key,value|
+  %tr.replaceable-row{origin: "dropbox:#{value.original_path}"}
+    %td 
+      =value.name
+    %td 
+      =value.size
+    %td 
+      =value.type
+
+

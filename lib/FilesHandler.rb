@@ -13,18 +13,16 @@ class FilesHandler
     @gdrive.client.authorization.refresh_token = google_refresh_token
   end
 
-  def get_all_files
+  def get_all_files origin=nil, path='/'
+=begin    
     all_files = Hash.new
     gdrive.get_all_files.each do |gdrive_file|
       all_files.store @@file_id, gdrive_file
       @@file_id +=1
     end
-
-    dropbox.get_all_files.each do |dropbox_file|
-      all_files.store @@file_id, dropbox_file
-      @@file_id += 1
-    end
-    all_files
+=end
+    puts path
+    dropbox.get_all_files path
   end
 
   def upload where_to_upload, a_file
