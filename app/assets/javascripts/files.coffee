@@ -3,7 +3,6 @@
 # You can use CoffeeScript in this file: http://coffeescript.org/
 
 $(document).ready -> 
-  console.log "carajo"
   #deals with jquery file upload (see https://github.com/blueimp/jQuery-File-Upload/wiki/API)
   $("#uploadForm").fileupload
     add:(e, data) ->
@@ -16,7 +15,6 @@ $(document).ready ->
         data.context.find(".bar").css("width", progress + '%')
 #when a item is dobule clicked
 $(document).on "dblclick page:load", ".replaceable-row", ->
-  console.log typeof this.getAttribute("Origin")
   data = {pathOrigin: this.getAttribute("origin").toString()}
   if $(":nth-child(3)",this).text().indexOf("folder") != -1
     $.ajax({

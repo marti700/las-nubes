@@ -5,6 +5,7 @@ class LNFile
     @size = size
     @type = type
     @download_link = download_link
+    @origin = origin
     @original_path = original_path
   end
 end

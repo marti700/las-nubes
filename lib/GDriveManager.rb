@@ -5,6 +5,7 @@ require 'LNFile'
 class GDriveManager
   attr_accessor :client
   def initialize
+    @@gdrive_files = 0
     @client = Google::APIClient.new
     @client.authorization.client_id = '180099244229-i2mfb4k2tj022615ripnkegqep3n4t15.apps.googleusercontent.com'
     @client.authorization.client_secret = 'kOd5dswJJE6tfBI0cCa5oI6R'
@@ -46,19 +47,26 @@ class GDriveManager
     return :invalid_access_code if result.status != 200 
     puts result.data.to_s
   end
-  def get_all_files
+  def get_all_files path='root'
+    id_prefix = 'a'
+    all_files = Hash.new
     #self.client.authorization.access_token = google_access_code
     drive = self.client.discovered_api('drive', 'v2')
-
+    puts "#{path} from google get all files"
     result = self.client.execute(
-      api_method: drive.files.list
+      api_method: drive.files.list,
+      parameters: {q: "'#{path}' in parents and trashed=false"}
     )
 
     if result.status == 200
-      clean_result result.data.items
+      clean_result(result.data.items).each do |file|
+        all_files.store(id_prefix + @@gdrive_files.to_s, file)
+        @@gdrive_files += 1
+      end
     else
       puts "An error occurred: #{result.data['error']['message']}"
     end
+    all_files
   end
 
   def clean_result result
@@ -66,8 +74,9 @@ class GDriveManager
     result.each do |file|
       file_name = file.title
       file_size = file.file_size
-      file_type = file.file_extension
-      files.push LNFile.new file_name, file_size, file_type
+      file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
+      file_id   = file.id
+      files.push LNFile.new file_name, file_size, file_type, file.id, 'gdrive'
     end
    files 
   end

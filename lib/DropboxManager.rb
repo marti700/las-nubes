@@ -15,7 +15,6 @@ class DropboxManager
   def get_all_files path="/"
     id_prefix = "b"
     all_files = Hash.new
-    puts path
     clean_result(dropbox_client.metadata(path)["contents"]).each do |file|
       all_files.store(id_prefix + @@dropbox_files.to_s, file) 
       @@dropbox_files += 1

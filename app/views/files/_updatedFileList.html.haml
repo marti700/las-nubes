@@ -1,5 +1,5 @@
 -@all_files.each do |key,value|
-  %tr.replaceable-row{origin: "dropbox:#{value.original_path}"}
+  %tr.replaceable-row{origin: "#{value.origin}:#{value.original_path}"}
     %td 
       =value.name
     %td 

@@ -14,16 +14,18 @@ class FilesHandler
   end
 
   def get_all_files origin=nil, path='/'
-=begin    
-    all_files = Hash.new
-    gdrive.get_all_files.each do |gdrive_file|
-      all_files.store @@file_id, gdrive_file
-      @@file_id +=1
+    
+    if origin == 'gdrive'
+      path = 'root' if path == '/'
+      puts "#{path} from files handler get all files"
+      gdrive.get_all_files path
+    elsif origin == 'dropbox'
+      dropbox.get_all_files path
+    else
+      gdrive.get_all_files.merge(dropbox.get_all_files)
     end
-=end
-    puts path
-    dropbox.get_all_files path
   end
+  
 
   def upload where_to_upload, a_file
     if where_to_upload == 'gdrive'
