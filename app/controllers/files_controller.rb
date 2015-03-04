@@ -6,6 +6,8 @@ class FilesController < ApplicationController
     respond_to do |format|
       format.html {
         @all_files = files.get_all_files
+        puts files.gdrive.space_left
+        puts files.dropbox.space_left
       }
       format.js {
         origin_path = params["pathOrigin"].split(':')
@@ -25,12 +27,29 @@ class FilesController < ApplicationController
 =end
   end
 
+  def create_folder
+    logged_user = User.find(session[:user_id])
+    files = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
+    
+    respond_to do |format|
+      format.js {
+        origin_path = params[:origin].split(':')
+        puts params  
+        files.create_folder params[:folder_name], origin_path.last
+        @all_files = files.get_all_files origin_path.first, origin_path.last
+        render "index.coffee.erb"
+      }
+    end
+  end
+
   def upload
     #gets the file reference from the browser 
     uploaded_io = params[:files][:Browse]
     
     logged_user = User.find(session[:user_id])
     files_uploader = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
+    
+    
     files_uploader.upload 'dropbox', uploaded_io
 
 =begin

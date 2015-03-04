@@ -45,14 +45,13 @@ class GDriveManager
       }
     ) 
     return :invalid_access_code if result.status != 200 
-    puts result.data.to_s
   end
+  
   def get_all_files path='root'
     id_prefix = 'a'
     all_files = Hash.new
     #self.client.authorization.access_token = google_access_code
     drive = self.client.discovered_api('drive', 'v2')
-    puts "#{path} from google get all files"
     result = self.client.execute(
       api_method: drive.files.list,
       parameters: {q: "'#{path}' in parents and trashed=false"}
@@ -79,6 +78,54 @@ class GDriveManager
       files.push LNFile.new file_name, file_size, file_type, file.id, 'gdrive'
     end
    files 
+  end
+
+  def space_left
+    #returns the space left in google drive in bytes
+    drive = self.client.discovered_api('drive', 'v2')
+    result = self.client.execute(
+      api_method: drive.about.get
+    )
+
+    if result.status == 200
+      result.data.quota_bytes_total - result.data.quota_bytes_used
+    else
+      puts "An error occurred: #{result.data['error']['message']}"
+    end
+  end
+
+  def create_folder a_folder_name, path
+    #creates a folder in a given path (path is a folder id), if the path is not provided the file is created in root
+    
+    drive = self.client.discovered_api('drive', 'v2')
+        
+    metadata = {
+      title: a_folder_name,
+      mimeType: "application/vnd.google-apps.folder",
+    }
+    
+    result = self.client.execute(
+      api_method: drive.files.insert,
+      body_object: metadata,
+    )
+    if path != '/' 
+      metadata = result.data
+      metadata.parents = [{id: path}] if result.status == 200
+      
+      update = self.client.execute(
+        api_method: drive.files.update,
+        body_object: metadata,
+        parameters: {
+          fileId: metadata.id
+        }
+      )
+    
+      if update.status == 200
+        puts "done!"
+      else
+        puts "An error occurred: #{result.data['error']['message']}"
+      end
+    end
   end
 end
 

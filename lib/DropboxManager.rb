@@ -32,5 +32,10 @@ class DropboxManager
     end
     files
   end
-end
 
+  def space_left
+    #returns the space left in dropbox in bytes
+    info = dropbox_client.account_info
+    info["quota_info"]["quota"] - info["quota_info"]["normal"] - info["quota_info"]["shared"]
+  end
+end

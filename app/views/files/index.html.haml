@@ -10,6 +10,12 @@
         =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
           =f.file_field :Browse
           =f.submit id: :uploadFile 
+        #create-folder
+          %button.btn.btn-default create
+          #folder-create.form-inline
+            %input#folder-name{type: :text}
+            %button.btn.btn-default#folder-create-button Create Folder
+      %p#currentpath.hidden /
       %table.table.table-hover.table-bordered#files-table
         %tr
           %th Name

@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   post  'sessions/create', controller: :sessions, as: 'user_login'
   get   'files/index'
   post  'files/upload', to: 'files#upload', as: 'upload'
+  post  'files/create_folder', to: 'files#create_folder', as: 'create_folder'
   get   'sessions/create', to: 'sessions#create', as: :sessions  
   post  'sessions/create'
   get   'sessions/new'

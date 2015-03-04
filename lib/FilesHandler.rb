@@ -26,6 +26,13 @@ class FilesHandler
     end
   end
   
+  def create_folder a_folder_name, path
+    if gdrive.space_left > dropbox.space_left
+      gdrive.create_folder a_folder_name, path
+    else
+      #dropbox.create_folder
+    end
+  end
 
   def upload where_to_upload, a_file
     if where_to_upload == 'gdrive'

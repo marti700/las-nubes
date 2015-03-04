@@ -13,9 +13,29 @@ $(document).ready ->
       if data.context
         progress = parseInt(data.loaded / data.total *100, 10)
         data.context.find(".bar").css("width", progress + '%')
-#when a item is dobule clicked
+    #make the folder create form appear to the user
+    $('#create-folder').click ->
+      $('#folder-create').css 'display', 'block'
+    #make the folder create form hidde when the table is clicked
+    $('#files-table').click ->
+      $('#folder-create').css 'display', 'none'
+    #send data to the server for folder creation 
+    $('#folder-create-button').click ->
+      currentPath = $('#currentpath').text()
+      console.log currentPath
+      data = {folder_name: $('#folder-name').val(), origin: currentPath}
+      $.ajax({
+        url: "/files/create_folder"
+        type: "POST"
+        data: data
+        dataType: "script"
+      });
+
+#when a item of the table is dobule clicked
 $(document).on "dblclick page:load", ".replaceable-row", ->
   data = {pathOrigin: this.getAttribute("origin").toString()}
+  $('#currentpath').text(this.getAttribute("origin").toString())
+  console.log $('#currentpath').text()
   if $(":nth-child(3)",this).text().indexOf("folder") != -1
     $.ajax({
       url: "/files/index"
@@ -25,3 +45,4 @@ $(document).on "dblclick page:load", ".replaceable-row", ->
     });
   else
     alert $(":nth-child(3)",this).text()
+
