@@ -32,7 +32,11 @@ class DropboxManager
     end
     files
   end
-
+  def create_folder a_folder_name, path
+    #creates a folder in the given path
+    dropbox_client.file_create_folder "#{path}/#{a_folder_name}"
+  end
+  
   def space_left
     #returns the space left in dropbox in bytes
     info = dropbox_client.account_info

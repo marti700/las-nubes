@@ -27,10 +27,19 @@ class FilesHandler
   end
   
   def create_folder a_folder_name, path
-    if gdrive.space_left > dropbox.space_left
+    if path == '/' && gdrive.space_left > dropbox.space_left
       gdrive.create_folder a_folder_name, path
-    else
-      #dropbox.create_folder
+    elsif path == '/' && gdrive.space_left < dropbox.space_left
+      dropbox.create_folder a_foder_name, path
+    end
+    
+    if path != '/'
+      origin_path = path.split(':')
+      if origin_path.first == 'gdrive'
+        gdrive.create_folder a_folder_name, origin_path.last
+      elsif origin_path.first == 'dropbox'
+        dropbox.create_folder a_folder_name, origin_path.last
+      end
     end
   end
 

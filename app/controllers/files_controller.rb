@@ -35,7 +35,7 @@ class FilesController < ApplicationController
       format.js {
         origin_path = params[:origin].split(':')
         puts params  
-        files.create_folder params[:folder_name], origin_path.last
+        files.create_folder params[:folder_name], params[:origin]
         @all_files = files.get_all_files origin_path.first, origin_path.last
         render "index.coffee.erb"
       }
