@@ -2,6 +2,7 @@ class FilesController < ApplicationController
   require 'FilesHandler'
   def index
     logged_user = User.find(session[:user_id])
+    @logged_user_name = logged_user.username
     files = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
     respond_to do |format|
       format.html {

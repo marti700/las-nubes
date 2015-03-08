@@ -27,3 +27,33 @@ ul{
 #folder-create{
   display: none;
 }
+/*for the top-bar*/
+.top-bar{
+  height: 4%;
+  background: #CDE9F4;
+  #user-options{
+    color: white;
+    margin-left: 90%;
+    font-size: 140%;
+
+    #userMenu{
+      color: white;
+    }
+  } 
+}
+#user-options-menu{
+  display: none;
+}
+#filesStructure{
+  background: #EFEFEF;
+  height: 100%;
+}
+#tree-view{
+  background: #F7F7F7;
+  height: 80%;
+  margin-top: 3%;
+}
+#table-container{
+  height: 100%;
+  overflow: auto;
+}

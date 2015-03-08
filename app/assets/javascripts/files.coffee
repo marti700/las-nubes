@@ -30,7 +30,6 @@ $(document).ready ->
         data: data
         dataType: "script"
       });
-
 #when a item of the table is dobule clicked
 $(document).on "dblclick page:load", ".replaceable-row", ->
   data = {pathOrigin: this.getAttribute("origin").toString()}

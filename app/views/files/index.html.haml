@@ -1,10 +1,22 @@
+.top-bar
+  #user-controls
+    #user-options.dropdown
+      %a.dropdown-toggle#userMenu{"data-toggle" =>  "dropdown" } 
+        =@logged_user_name
+      %ul.dropdown-menu{role: :menu, "aria-labelledby" => "userMenu" }
+        %li{role: :presentation}
+          %a{role: :menuitem, tabindex: "-1"} logout
 .container-fluid{id: :sidebar}
   .row
     .col-xs-2{id: :filesStructure}
-      %ul
-        %li Test File 1
-        %li Test File 2
-        %li Test File 3
+      #tree-view
+        a tree view goes here (comming soon)
+        %ul
+          %li File 1
+          %li File 2
+          %li File 3
+      #settings
+        %a settings
     .col-xs-9{id: :administrativeTasks}
       #actions
         =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
@@ -16,19 +28,15 @@
             %input#folder-name{type: :text}
             %button.btn.btn-default#folder-create-button Create Folder
       %p#currentpath.hidden /
-      %table.table.table-hover.table-bordered#files-table
-        %tr
-          %th Name
-          %th Size
-          %th Type
-        =render "updatedFileList"
-  .row
-    .col-xs-2{id: :storageSettings}
-      %ul
-        %li GDrive
-        %li Dropbox
-        %li Mega
- 
+      #table-container
+        %table.table.table-hover.table-bordered#files-table
+          %tr
+            %th Name
+            %th Size
+            %th Type
+          %tr
+            =render "updatedFileList"
+
 %script#template-upload{type: "text/x-tmpl"}
   .upload
     {%=o.name%}
