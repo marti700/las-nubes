@@ -69,13 +69,14 @@ class GDriveManager
   end
 
   def clean_result result
+    mime_type = YAML.load_file('mime_type_extension.yml') 
     files = Array.new
     result.each do |file|
       file_name = file.title
       file_size = file.file_size
       file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
       file_id   = file.id
-      files.push LNFile.new file_name, file_size, file_type, file.id, 'gdrive'
+      files.push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
     end
    files 
   end

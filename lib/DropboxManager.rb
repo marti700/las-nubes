@@ -24,11 +24,19 @@ class DropboxManager
 
   def clean_result result
     files = Array.new
+    mime_type = YAML.load_file('mime_type_extension.yml') 
+    
     result.each do |file|
       file_name = file["path"].split('/').last #Takes the word after the last '/' which is the file name
-      file["is_dir"] ? file_type = "folder" : file_type = file["mime_type"].split('/').last 
+      if file["is_dir"] 
+        file_type = "folder" 
+        file_mime = "dropbox/folder"
+      else
+        file_type = mime_type["#{file['mime_type']}"]
+        file_mime = file["mime_type"]
+      end 
       file_size = file["bytes"].to_s
-      files.push LNFile.new file_name, file_size, file_type, file["path"], 'dropbox'   
+      files.push LNFile.new file_name, file_size, file_type, file_mime, file["path"], 'dropbox'   
     end
     files
   end

@@ -1,10 +1,9 @@
 -@all_files.each do |key,value|
   %tr.replaceable-row{origin: "#{value.origin}:#{value.original_path}"}
     %td 
+      =image_tag("mimetypes/#{value.mime_type.gsub("/", "-" )}.png")
       =value.name
     %td 
       =value.size
     %td 
       =value.type
-
-
