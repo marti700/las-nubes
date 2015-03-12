@@ -16,7 +16,10 @@
           %li File 2
           %li File 3
       #settings
+        %br
+        =image_tag("cog.png")
         %a settings
+        %span.glyphicon.glyphicon-cog.sr-only{"aria-hidden" => "false"}
     .col-xs-9{id: :administrativeTasks}
       #actions
         =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|

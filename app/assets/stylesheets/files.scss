@@ -4,56 +4,62 @@
 
 input[type='file'] {
   /*color: transparent;*/
-  
+}
+#page-top{
+    background: #F5F5F5;
 }
 
 #uploadFile{
     display: none;
 }
 ul{
-  overflow: auto;
-  color: RED;
+    overflow: auto;
+    color: RED;
 }
 .container-fluid{
-  height: 100%;
+    height: 100%;
 }
 .bar {
-  height: 18px;
-  background: green;
+    height: 18px;
+    background: green;
 }
 .progress{
-  background: transparent;
+    background: transparent;
 }
 #folder-create{
-  display: none;
+    display: none;
 }
 /*for the top-bar*/
 .top-bar{
-  height: 4%;
-  background: #CDE9F4;
-  #user-options{
-    color: white;
-    margin-left: 90%;
-    font-size: 140%;
+    height: 4%;
+    background: #0078BD;
+    #user-options{
+        color: white;
+        margin-left: 90%;
+        font-size: 140%;
 
     #userMenu{
-      color: white;
+        color: white;
     }
-  } 
+    } 
 }
 #user-options-menu{
-  display: none;
+    display: none;
 }
 #filesStructure{
-  background: #EFEFEF;
-  height: 100%;
+    background: #4BBEFF;
+    height: 100%;
 }
 #tree-view{
-  background: #F7F7F7;
-  height: 80%;
-  margin-top: 3%;
+    background: #ECF4F9;
+    height: 80%;
+    margin-top: 3%;
+}
+div#settings > a{
+    color: white;
+    font-size: 18px;
 }
 #table-container{
-  height: 100%;
-  overflow: auto;
+    height: 100%;
+    overflow: auto;
 }

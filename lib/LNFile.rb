@@ -4,7 +4,7 @@ class LNFile
     @name = name
     @size = size
     @type = type
-    @mime_type = mime_type.to_s
+    @mime_type = mime_type
     @download_link = download_link
     @origin = origin
     @original_path = original_path
