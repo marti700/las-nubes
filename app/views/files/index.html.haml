@@ -22,9 +22,10 @@
         %span.glyphicon.glyphicon-cog.sr-only{"aria-hidden" => "false"}
     .col-xs-9{id: :administrativeTasks}
       #actions
-        =form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
-          =f.file_field :Browse
-          =f.submit id: :uploadFile 
+        /=form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
+        /  =f.file_field :Browse
+        /  =f.submit id: :uploadFile 
+        %input#files-explorer{type: :file}
         #create-folder
           %button.btn.btn-default create
           #folder-create.form-inline

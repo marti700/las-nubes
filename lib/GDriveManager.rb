@@ -96,7 +96,7 @@ class GDriveManager
   end
 
   def create_folder a_folder_name, path
-    #creates a folder in a given path (path is a folder id), if the path is not provided the file is created in root
+    #creates a folder in a given path (path is a folder id), if path = '/' (which is cleary not a file id) file is created in root
     
     drive = self.client.discovered_api('drive', 'v2')
         
