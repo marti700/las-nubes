@@ -5,27 +5,28 @@ require 'LNFile'
 class GDriveManager
   attr_accessor :client
   def initialize
+    data = JSON.parse(File.read("/home/teodoro/Documents/Projects/RubyProjects/las_nubes/client_secret.json"))
     @@gdrive_files = 0
     @client = Google::APIClient.new
-    @client.authorization.client_id = '180099244229-i2mfb4k2tj022615ripnkegqep3n4t15.apps.googleusercontent.com'
-    @client.authorization.client_secret = 'kOd5dswJJE6tfBI0cCa5oI6R'
-    @client.authorization.redirect_uri = 'https://lasnubes.ngrok.com/users/get_authorization_codes'
-    @client.authorization.scope = 'https://www.googleapis.com/auth/drive' 
+    @client.authorization.client_id = data['web']['client_id']
+    @client.authorization.client_secret = data['web']['client_secret']
+    @client.authorization.redirect_uri = data['web']['redirect_uris'][0]
+    @client.authorization.scope = 'https://www.googleapis.com/auth/drive'
   end
 
   def self.get_new_google_access_token refresh_token, grant_type='refresh_token'
     #obtain a new google access_token from google
-    
+
     data = JSON.parse(File.read("/home/teodoro/Documents/Projects/RubyProjects/las_nubes/client_secret.json"))
     uri = URI('https://www.googleapis.com/oauth2/v3/token')
-    response = Net::HTTP.post_form(uri, 'client_id' => data["web"]["client_id"], 'client_secret' => data["web"]["client_secret"], 
+    response = Net::HTTP.post_form(uri, 'client_id' => data["web"]["client_id"], 'client_secret' => data["web"]["client_secret"],
                                    'refresh_token' => refresh_token, 'grant_type' => grant_type)
     return JSON.parse(response.body)
   end
-  
+
   def upload a_file
     #uploads files to google drive
-    
+
     #self.client.authorization.access_token = google_access_code
     drive = self.gdrive.client.discovered_api('drive', 'v2')
     file = Google::APIClient::UploadIO.new(a_file, 'image/png')
@@ -43,10 +44,10 @@ class GDriveManager
       parameters: {
         'uploadType' => 'multipart'
       }
-    ) 
-    return :invalid_access_code if result.status != 200 
+    )
+    return :invalid_access_code if result.status != 200
   end
-  
+
   def get_all_files path='root'
     id_prefix = 'a'
     all_files = Hash.new
@@ -69,7 +70,7 @@ class GDriveManager
   end
 
   def clean_result result
-    mime_type = YAML.load_file('mime_type_extension.yml') 
+    mime_type = YAML.load_file('mime_type_extension.yml')
     files = Array.new
     result.each do |file|
       file_name = file.title
@@ -78,7 +79,7 @@ class GDriveManager
       file_id   = file.id
       files.push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
     end
-   files 
+   files
   end
 
   def space_left
@@ -97,22 +98,22 @@ class GDriveManager
 
   def create_folder a_folder_name, path
     #creates a folder in a given path (path is a folder id), if path = '/' (which is cleary not a file id) file is created in root
-    
+
     drive = self.client.discovered_api('drive', 'v2')
-        
+
     metadata = {
       title: a_folder_name,
       mimeType: "application/vnd.google-apps.folder",
     }
-    
+
     result = self.client.execute(
       api_method: drive.files.insert,
       body_object: metadata,
     )
-    if path != '/' 
+    if path != '/'
       metadata = result.data
       metadata.parents = [{id: path}] if result.status == 200
-      
+
       update = self.client.execute(
         api_method: drive.files.update,
         body_object: metadata,
@@ -120,7 +121,7 @@ class GDriveManager
           fileId: metadata.id
         }
       )
-    
+
       if update.status == 200
         puts "done!"
       else
