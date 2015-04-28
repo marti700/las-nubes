@@ -13,19 +13,33 @@ $(window).load ->
   #    if data.context
   #      progress = parseInt(data.loaded / data.total *100, 10)
   #      data.context.find(".bar").css("width", progress + '%')
-  
+
   #=============================================================================================
   #*******************************************UPLOADS*******************************************
   #=============================================================================================
   #Uploads content to google drive
-  gdriveUploadAction = (client_id, scopes)->
-    gdriveHandler = new GdriveActionHandler(client_id, scopes)
-    gdriveHandler.authenticate()
-    gdriveHandler.uploadFile()
-
-  dropboxUploadAction = (access_token) ->
+  gdriveAction = (token)->
+    gdriveHandler = new GdriveActionHandler(token)
+    #gdriveHandler.authenticate()
+  #upload content to dropbox
+  dropboxAction = (access_token) ->
     dropboxHandler = new DropboxActionHandler(access_token)
-    dropboxHandler.uploadFile()
+
+  #Decides where to upload the file
+  #the file will be uploaded to the cloud account with
+  #more free space
+  whereToUpload = (space_remaining) ->
+    uploadTo = ''
+    previousValue = 0
+    for key, value of space_remaining
+      if uploadTo == ''
+        uploadTo = key
+        previousValue = value
+      else if value > previousValue
+        uploadTo = key
+
+    uploadTo
+
 
   #binds a change event on the input type file the triggers the upload process by selecting a file
   $('#files-explorer').bind 'change', ->
@@ -34,25 +48,31 @@ $(window).load ->
       type: "GET"
       dataType: "json"
       success: (data, textStaus, jqXHRObject) ->
+        cloudHandlers =  {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
         console.log data
+        console.log(Math.max(data.gdrive_remaining_space, data.dropbox_remaining_space))
         #gdriveUploadAction(data.client_id, data.scopes)
-        dropboxUploadAction(data.dropbox_access_token)
+        #cloudHandlers[whereToUpload({ gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space })]
+        space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
+        console.log(cloudHandlers["gdrive"])
+        console.log data.google_access_token
+        cloudHandlers[(whereToUpload(space_remaining))].uploadFile()
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************
   #============================================================================================
-  
+
   #============================================================================================
   #****************************************FOLDERS*********************************************
   #============================================================================================
-  
+
   #make the folder create form appear to the user
   $('#create-folder').click ->
     $('#folder-create').css 'display', 'block'
   #make the folder create form hidde when the table is clicked
   $('#files-table').click ->
     $('#folder-create').css 'display', 'none'
-  #send data to the server for folder creation 
+  #send data to the server for folder creation
   $('#folder-create-button').click ->
     currentPath = $('#currentpath').text()
     console.log currentPath
@@ -74,7 +94,7 @@ $(document).on "dblclick page:load", ".replaceable-row", ->
     $.ajax({
       url: "/files/index"
       type: "GET"
-      data: data 
+      data: data
       dataType: "script"
     });
   else

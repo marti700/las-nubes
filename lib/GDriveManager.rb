@@ -14,7 +14,7 @@ class GDriveManager
     @client.authorization.scope = 'https://www.googleapis.com/auth/drive'
   end
 
-  def self.get_new_google_access_token refresh_token, grant_type='refresh_token'
+  def get_new_google_access_token refresh_token, grant_type='refresh_token'
     #obtain a new google access_token from google
 
     data = JSON.parse(File.read("/home/teodoro/Documents/Projects/RubyProjects/las_nubes/client_secret.json"))
