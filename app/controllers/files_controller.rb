@@ -7,8 +7,6 @@ class FilesController < ApplicationController
     respond_to do |format|
       format.html {
         @all_files = files.get_all_files
-        puts files.gdrive.space_left
-        puts files.dropbox.space_left
       }
       format.js {
         origin_path = params["pathOrigin"].split(':')
@@ -46,12 +44,14 @@ class FilesController < ApplicationController
   def upload
     logged_user = User.find(session[:user_id])
     files_uploader = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
-
     respond_to do |format|
       format.json{
         response_data = Hash.new 
-        response_data.store :client_id, files_uploader.gdrive.client.authorization.client_id
-        response_data.store :scopes, files_uploader.gdrive.client.authorization.scope
+        response_data.store :google_client_id, files_uploader.gdrive.client.authorization.client_id
+        response_data.store :google_scopes, files_uploader.gdrive.client.authorization.scope
+        response_data.store :dropbox_access_token, logged_user.dropbox_access_code
+        response_data.store :gdrive_remaining_space, files_uploader.gdrive.remaining_space
+        response_data.store :dropbox_remaining_space, files_uploader.dropbox.remaining_space
         render json:  response_data
       }
     end

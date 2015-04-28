@@ -82,7 +82,7 @@ class GDriveManager
    files
   end
 
-  def space_left
+  def remaining_space
     #returns the space left in google drive in bytes
     drive = self.client.discovered_api('drive', 'v2')
     result = self.client.execute(

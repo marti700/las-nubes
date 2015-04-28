@@ -45,7 +45,7 @@ class DropboxManager
     dropbox_client.file_create_folder "#{path}/#{a_folder_name}"
   end
   
-  def space_left
+  def remaining_space
     #returns the space left in dropbox in bytes
     info = dropbox_client.account_info
     info["quota_info"]["quota"] - info["quota_info"]["normal"] - info["quota_info"]["shared"]

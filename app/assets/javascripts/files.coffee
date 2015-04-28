@@ -23,6 +23,9 @@ $(window).load ->
     gdriveHandler.authenticate()
     gdriveHandler.uploadFile()
 
+  dropboxUploadAction = (access_token) ->
+    dropboxHandler = new DropboxActionHandler(access_token)
+    dropboxHandler.uploadFile()
 
   #binds a change event on the input type file the triggers the upload process by selecting a file
   $('#files-explorer').bind 'change', ->
@@ -32,7 +35,8 @@ $(window).load ->
       dataType: "json"
       success: (data, textStaus, jqXHRObject) ->
         console.log data
-        gdriveUploadAction(data.client_id, data.scopes)
+        #gdriveUploadAction(data.client_id, data.scopes)
+        dropboxUploadAction(data.dropbox_access_token)
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************
