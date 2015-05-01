@@ -2,16 +2,11 @@ class @GdriveActionHandler
   constructor: (@token) ->
 
   #loads the gdrive API client to start upload
-  uploadFile: (evt) =>
+  uploadFile: (aFile, evt) =>
     #GdriveUploader::authenticate()
-    console.log @token
     gapi.auth.setToken(@token)
     gapi.client.load('drive', 'v2', ->
-      #take the reference to the selected file 'files-explorer' is an input type file
-      file = document.getElementById('files-explorer').files[0]
-      #file = $('#files_Browser').files[0]
-      console.log this
-      GdriveActionHandler::insertFile(file) #calls the method that will actually upload the file
+      GdriveActionHandler::insertFile(aFile) #calls the method that will actually upload the file
     )
   #Insert new file in drive
   insertFile: (fileData, callback) ->

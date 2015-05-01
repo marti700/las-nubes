@@ -14,6 +14,25 @@ $(window).load ->
   #      progress = parseInt(data.loaded / data.total *100, 10)
   #      data.context.find(".bar").css("width", progress + '%')
 
+  #============================================================================================
+  #********************************UPLOADS-DOWNLOADS-STATUS************************************
+  #============================================================================================
+  #controls the status bar that displays the upload download status to the user
+  showStatus = (fileName, action)->
+    progressBar = '<div class="progress">'+
+        '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">'+
+            '<span class="sr-only">40% Complete (success)</span>'+
+              '</div>'
+
+    $('#table-container').animate {"height": "65%"}, "slow"
+    $('#status-wrapper').animate {"height": "15%"}, "slow"
+    $("#status-table").append "<tr> <td>#{fileName}</td> <td>#{action}</td> <td>#{progressBar}</td> <tr>"
+
+  #============================================================================================
+  #****************************UPLOADS-DOWNLOADS-STATUS-END************************************
+  #============================================================================================
+
+
   #=============================================================================================
   #*******************************************UPLOADS*******************************************
   #=============================================================================================
@@ -43,20 +62,18 @@ $(window).load ->
 
   #binds a change event on the input type file the triggers the upload process by selecting a file
   $('#files-explorer').bind 'change', ->
+    file = document.getElementById('files-explorer').files[0]
+    showStatus(file.name, "Uploading")
     $.ajax({
       url: "/files/upload"
       type: "GET"
       dataType: "json"
       success: (data, textStaus, jqXHRObject) ->
         cloudHandlers =  {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
-        console.log data
-        console.log(Math.max(data.gdrive_remaining_space, data.dropbox_remaining_space))
         #gdriveUploadAction(data.client_id, data.scopes)
         #cloudHandlers[whereToUpload({ gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space })]
         space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
-        console.log(cloudHandlers["gdrive"])
-        console.log data.google_access_token
-        cloudHandlers[(whereToUpload(space_remaining))].uploadFile()
+        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file)
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************

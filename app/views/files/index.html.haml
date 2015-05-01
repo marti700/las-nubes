@@ -1,7 +1,7 @@
 .top-bar
   #user-controls
     #user-options.dropdown
-      %a.dropdown-toggle#userMenu{"data-toggle" =>  "dropdown" } 
+      %a.dropdown-toggle#userMenu{"data-toggle" =>  "dropdown" }
         =@logged_user_name
       %ul.dropdown-menu{role: :menu, "aria-labelledby" => "userMenu" }
         %li{role: :presentation}
@@ -24,7 +24,7 @@
       #actions
         /=form_for :files, url: upload_path, html:{id: :uploadForm} do |f|
         /  =f.file_field :Browse
-        /  =f.submit id: :uploadFile 
+        /  =f.submit id: :uploadFile
         %input#files-explorer{type: :file}
         #create-folder
           %button.btn.btn-default create
@@ -40,9 +40,18 @@
             %th Type
           %tr
             =render "updatedFileList"
-
-%script#template-upload{type: "text/x-tmpl"}
-  .upload
-    {%=o.name%}
-    .progress 
-      .bar{style: "width: 0%"}
+      #status-wrapper
+        #status
+          status
+          #status-table-container
+            %table.table.table-hover#status-table
+              %tr
+                %th File Name
+                %th Action
+                %th Progress
+-#
+  %script#template-upload{type: "text/x-tmpl"}
+    .upload
+      {%=o.name%}
+      .progress
+        .bar{style: "width: 0%"}
