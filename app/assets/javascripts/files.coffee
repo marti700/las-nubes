@@ -17,16 +17,17 @@ $(window).load ->
   #============================================================================================
   #********************************UPLOADS-DOWNLOADS-STATUS************************************
   #============================================================================================
-  #controls the status bar that displays the upload download status to the user
+  #controls the status bar that displays the upload status to the user
   showStatus = (fileName, action)->
     progressBar = '<div class="progress">'+
-        '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">'+
-            '<span class="sr-only">40% Complete (success)</span>'+
-              '</div>'
+        '<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">'+
+            '0%'+
+              '</div></div>'
 
     $('#table-container').animate {"height": "65%"}, "slow"
     $('#status-wrapper').animate {"height": "15%"}, "slow"
-    $("#status-table").append "<tr> <td>#{fileName}</td> <td>#{action}</td> <td>#{progressBar}</td> <tr>"
+    $("#status-table").append "<tr> <td>#{fileName}</td> <td>#{action}</td> <td>#{progressBar}</td> </tr>"
+    return [$('#status-table tr:last td:nth-child(2)'), $('#status-table tr:last td:last div:last')]
 
   #============================================================================================
   #****************************UPLOADS-DOWNLOADS-STATUS-END************************************
@@ -63,7 +64,7 @@ $(window).load ->
   #binds a change event on the input type file the triggers the upload process by selecting a file
   $('#files-explorer').bind 'change', ->
     file = document.getElementById('files-explorer').files[0]
-    showStatus(file.name, "Uploading")
+    updateStatus = showStatus(file.name, "Uploading")
     $.ajax({
       url: "/files/upload"
       type: "GET"
@@ -73,7 +74,7 @@ $(window).load ->
         #gdriveUploadAction(data.client_id, data.scopes)
         #cloudHandlers[whereToUpload({ gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space })]
         space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
-        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file)
+        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, updateStatus[0], updateStatus[1])
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************

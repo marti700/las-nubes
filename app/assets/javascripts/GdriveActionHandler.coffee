@@ -2,61 +2,51 @@ class @GdriveActionHandler
   constructor: (@token) ->
 
   #loads the gdrive API client to start upload
-  uploadFile: (aFile, evt) =>
-    #GdriveUploader::authenticate()
-    gapi.auth.setToken(@token)
-    gapi.client.load('drive', 'v2', ->
-      GdriveActionHandler::insertFile(aFile) #calls the method that will actually upload the file
-    )
-  #Insert new file in drive
-  insertFile: (fileData, callback) ->
-    boundary = '-------314159265358979323846'
-    delimiter = "\r\n--" + boundary + "\r\n"
-    close_delim = "\r\n--" + boundary + "--"
+  uploadFile: (aFile, uploadStatus, progressBar) =>
+    metadata = {
+      'title': aFile.name
+    }
 
-    #decide if the file will be uploaded to root or inside a folder
-    console.log $('#currentpath').text()
-    if $('#currentpath').text() == '/'
-      contentType = fileData.type || 'application/octect-stream'
-      metadata = {
-        'title': fileData.name,
-        'mimeType': contentType,
+    #make a resumable upload request to drive
+    $.ajax({
+      url: 'https://www.googleapis.com/upload/drive/v2/files?uploadType=resumable',
+      type: 'POST',
+      headers: {'X-Upload-Content-Type': aFile.type || 'application/octetc-stream',
+      #'X-Upload-Content-Length': aFile.size,
+      'Content-Type': 'application/json'
+      'Authorization': "Bearer #{@token.access_token}"
+      },
+      data: JSON.stringify(metadata)
+      success: (data, textStaus, jqXHRObject ) =>
+        #upload the file
+        this.insertFile(aFile, jqXHRObject.getResponseHeader('Location'), @token.access_token, uploadStatus, progressBar)
+    })
+
+  #upload the file to upload_uri obtainde by uploadFile function
+  insertFile: (file, upload_uri, access_token, uploadStatus, progressBar) =>
+    $.ajax({
+      url: upload_uri,
+      type: 'PUT'
+      headers: {
+        'Content-Length': file.size
+        'Authorization': "Bearer #{access_token}"
       }
+      #binds onprogress event to jquery XmlHttpRequest object
+      xhr: () ->
+        #get jquery XmlHttpRequest object
+        xhr = $.ajaxSettings.xhr()
+        # Set the onprogress evt
+        xhr.upload.onprogress = (evt) ->
+          if progressBar # if progressBar was passed
+            progress = parseInt((evt.loaded/evt.total) *100)
+            progressBar.css 'width',"#{progress}%"
+            progressBar.text "#{progress}%"
 
-    else
-      parent = $('#currentpath').text().split(':')[1] #file will be uploaded inside the foder(s) with this id
-      contentType = fileData.type || 'application/octect-stream'
-      metadata = {
-        'title': fileData.name,
-        'mimeType': contentType,
-        'parents': [{'id': parent}]
-      }
-    console.log parent
+        return xhr
 
-    reader = new FileReader()
-    reader.readAsBinaryString fileData
-    reader.onload = (e) ->
-      base64Data = btoa reader.result
-      multipartRequestBody =
-      delimiter +
-      'Content-Type: application/json\r\n\r\n' +
-      JSON.stringify(metadata) +
-      delimiter +
-      'Content-Type: ' + contentType + '\r\n' +
-      'Content-Transfer-Encoding: base64\r\n' +
-      '\r\n' +
-      base64Data +
-      close_delim;
-
-      request = gapi.client.request({
-        'path': '/upload/drive/v2/files',
-        'method': 'POST',
-        'params': {'uploadType': 'multipart'},
-        'headers': {
-        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-        },
-        'body': multipartRequestBody});
-      if !callback
-        callback = (file) ->
-          console.log file
-      request.execute callback
+      processData: false
+      data: file
+      success: ()->
+        if uploadStatus #if uploadStatus was passed
+          uploadStatus.text 'Done!'
+    })
