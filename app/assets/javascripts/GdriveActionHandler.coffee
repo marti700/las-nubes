@@ -2,10 +2,16 @@ class @GdriveActionHandler
   constructor: (@token) ->
 
   #loads the gdrive API client to start upload
-  uploadFile: (aFile, uploadStatus, progressBar) =>
-    metadata = {
-      'title': aFile.name
-    }
+  uploadFile: (aFile, path, uploadStatus, progressBar) =>
+    if path == '/'
+      metadata = {
+        'title': aFile.name
+      }
+    else
+      metadata = {
+        'title': aFile.name
+        'parents': [id: path]
+      }
 
     #make a resumable upload request to drive
     $.ajax({
@@ -27,6 +33,7 @@ class @GdriveActionHandler
     $.ajax({
       url: upload_uri,
       type: 'PUT'
+      crossDomain: true
       headers: {
         'Content-Length': file.size
         'Authorization': "Bearer #{access_token}"

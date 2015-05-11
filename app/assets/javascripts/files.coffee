@@ -71,10 +71,16 @@ $(window).load ->
       dataType: "json"
       success: (data, textStaus, jqXHRObject) ->
         cloudHandlers =  {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
-        #gdriveUploadAction(data.client_id, data.scopes)
-        #cloudHandlers[whereToUpload({ gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space })]
+        #takes the path where the file will be uploaded
+        if $('#currentpath').text() == '/'
+          uploadPath = '/'
+        else
+          uploadPath = $('#currentpath').text().split(':')[1]
+
         space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
-        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, updateStatus[0], updateStatus[1])
+        #uploads the file to the correct cloud drive, where the file is uploaded by default depends
+        #of the cloud account free space
+        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, uploadPath, updateStatus[0], updateStatus[1])
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************
