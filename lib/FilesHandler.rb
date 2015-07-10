@@ -14,15 +14,15 @@ class FilesHandler
   end
 
   def get_all_files origin=nil, path='/'
-    
+    #@dropbox.get_files
     if origin == 'gdrive'
       path = 'root' if path == '/'
       puts "#{path} from files handler get all files"
-      gdrive.get_all_files path
+      gdrive.get_files
     elsif origin == 'dropbox'
-      dropbox.get_all_files path
+      #dropbox.get_all_files path
     else
-      gdrive.get_all_files.merge(dropbox.get_all_files)
+      gdrive.get_files
     end
   end
   

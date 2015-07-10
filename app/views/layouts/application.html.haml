@@ -1,6 +1,7 @@
 %html
   %head
     %title LasNubes
+    =Gon::Base.render_data({})
     =stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
     =javascript_include_tag 'application', 'data-turbolinks-track' => true
     =javascript_include_tag 'https://apis.google.com/js/client.js?onload=handleClientLoad'

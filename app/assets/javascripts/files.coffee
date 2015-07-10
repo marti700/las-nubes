@@ -2,7 +2,39 @@
 # All this logic will automatically be available in application.js.
 # You can use CoffeeScript in this file: http://coffeescript.org/
 #=require GdriveActionHandler
-$(window).load ->
+$(window).on 'load page:load', ->
+  firstTime = true
+  if gon.files != undefined
+    console.log gon.files
+    #appends the elements to the files table
+    appendTableElements = (folder) ->
+        for element, contents of gon.files[folder]
+          childrens = if contents.type == 'folder' then childrens = contents.original_path else childrens = null
+          tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
+                        "<td> #{contents.name}</td>"+
+                        "<td> #{contents.size}</td>"+
+                        "<td> #{contents.type}</td></tr>"
+          $('#files-table').append tableRow
+
+    #remove all elemets from the files table
+    removeTableElements = ->
+      $('.ft-row').empty()
+
+    #refresh elemens of the files table
+    if firstTime
+      appendTableElements('root')
+      firstTime = false
+
+    $('#files-table').on 'dblclick','.ft-row', ->
+      if $(":nth-child(3)",this).text().indexOf("folder") != -1
+        $('#currentpath').text $(this).attr 'childrens'
+        removeTableElements()
+        appendTableElements $(this).attr('childrens')
+        console.log $(this).attr('childrens')
+
+      else
+        console.log 'Downloading'
+
   #deals with jquery file upload (see https://github.com/blueimp/jQuery-File-Upload/wiki/API)
   #$("#uploadForm").fileupload
   #  add:(e, data) ->
@@ -75,12 +107,12 @@ $(window).load ->
         if $('#currentpath').text() == '/'
           uploadPath = '/'
         else
-          uploadPath = $('#currentpath').text().split(':')[1]
+          uploadPath = $('#currentpath').text()
 
         space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
         #uploads the file to the correct cloud drive, where the file is uploaded by default depends
         #of the cloud account free space
-        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, uploadPath, updateStatus[0], updateStatus[1])
+        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, uploadPath, updateStatus[0], updateStatus[1], $("#files-table"))
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************
@@ -106,23 +138,24 @@ $(window).load ->
       type: "POST"
       data: data
       dataType: "script"
-    });
+    })
 
 #when a item of the table is dobule clicked if the item is a folder,
-#folder content will be displayed, if item is a file it will be downloades
-$(document).on "dblclick page:load", ".replaceable-row", ->
-  data = {pathOrigin: this.getAttribute("origin").toString()}
-  $('#currentpath').text(this.getAttribute("origin").toString())
-  console.log $('#currentpath').text()
-  if $(":nth-child(3)",this).text().indexOf("folder") != -1
-    $.ajax({
-      url: "/files/index"
-      type: "GET"
-      data: data
-      dataType: "script"
-    });
-  else
-    alert $(":nth-child(3)",this).text()
+#folder content will be displayed, if item is a file it will be downloaded
+#$(document).on "dblclick page:load", "#files-table", ->
+#  data = {pathOrigin: this.getAttribute("origin").toString()}
+#  $('#currentpath').text(this.getAttribute("origin").toString())
+#  console.log $('#currentpath').text()
+#  if $(":nth-child(3)",this).text().indexOf("folder") != -1
+#    console.log $(this)
+#    $.ajax({
+#      url: "/files/index"
+#      type: "GET"
+#      data: data
+#      dataType: "script"
+#    })
+#  else
+#    alert $(":nth-child(3)",this).text()
   #====================================================================================================
   #==========================================FOLDERS END***********************************************
   #===================================================================================================

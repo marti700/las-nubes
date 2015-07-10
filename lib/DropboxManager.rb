@@ -50,4 +50,14 @@ class DropboxManager
     info = dropbox_client.account_info
     info["quota_info"]["quota"] - info["quota_info"]["normal"] - info["quota_info"]["shared"]
   end
+
+  def get_files
+    delta = dropbox_client.delta
+    puts delta['entries']
+    while delta['has_more']
+      delta = dropbox_client.delta delta['cursor']
+      puts 'delta.txt', delta['entries']
+      puts delta['has_more']
+    end
+  end
 end

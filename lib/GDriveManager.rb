@@ -48,36 +48,63 @@ class GDriveManager
     return :invalid_access_code if result.status != 200
   end
 
-  def get_all_files path='root'
+  #def get_files_from_folder path='root'
+  #  id_prefix = 'a'
+  #  all_files = Hash.new
+  #  #self.client.authorization.access_token = google_access_code
+  #  drive = self.client.discovered_api('drive', 'v2')
+  #  result = self.client.execute(
+  #    api_method: drive.files.list,
+  #    parameters: {q: "'#{path}' in parents and trashed=false"}
+  #  )
+
+  #  if result.status == 200
+  #    clean_result(result.data.items).each do |file|
+  #      all_files.store(id_prefix + @@gdrive_files.to_s, file)
+  #      @@gdrive_files += 1
+  #    end
+  #  else
+  #    puts "An error occurred: #{result.data['error']['message']}"
+  #  end
+  #  all_files
+  #end
+  def get_files
     id_prefix = 'a'
     all_files = Hash.new
-    #self.client.authorization.access_token = google_access_code
     drive = self.client.discovered_api('drive', 'v2')
     result = self.client.execute(
       api_method: drive.files.list,
-      parameters: {q: "'#{path}' in parents and trashed=false"}
+      parameters: { maxResults: 1000,
+                    q: "trashed=false"
+                  }
     )
 
     if result.status == 200
-      clean_result(result.data.items).each do |file|
-        all_files.store(id_prefix + @@gdrive_files.to_s, file)
-        @@gdrive_files += 1
-      end
+      clean_result(result.data.items)
     else
-      puts "An error occurred: #{result.data['error']['message']}"
+      puts "An error occured: #{ result.data['error']['message'] }"
     end
-    all_files
   end
 
   def clean_result result
     mime_type = YAML.load_file('mime_type_extension.yml')
-    files = Array.new
+    files = { root: [] }
     result.each do |file|
       file_name = file.title
       file_size = file.file_size
       file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
       file_id   = file.id
-      files.push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+      #the each method will not process empty arrays
+      files[:root].push LNFile.new file_name, file_size, file_type, file.mimeType, file.id, 'gdrive' if file.parents.empty?
+      file.parents.each do |parent|
+        if parent.isRoot
+          files[:root].push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+        elsif files.has_key? parent['id']
+          files["#{parent['id']}"].push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+        else
+          files["#{parent['id']}"] = [LNFile.new(file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
+        end
+      end
     end
    files
   end

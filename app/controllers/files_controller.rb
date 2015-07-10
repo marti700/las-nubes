@@ -4,16 +4,17 @@ class FilesController < ApplicationController
     logged_user = User.find(session[:user_id])
     @logged_user_name = logged_user.username
     files = FilesHandler.new logged_user.google_access_code, logged_user.google_refresh_token, logged_user.dropbox_access_code
-    respond_to do |format|
-      format.html {
-        @all_files = files.get_all_files
-      }
-      format.js {
-        origin_path = params["pathOrigin"].split(':')
-        @all_files = files.get_all_files origin_path.first, origin_path.last
-        render "index.coffee.erb"
-      }
-    end
+    gon.files = files.get_all_files
+    #respond_to do |format|
+    #  format.html {
+    #    @all_files = files.get_all_files
+    #  }
+    #  format.js {
+    #    origin_path = params["pathOrigin"].split(':')
+    #    @all_files = files.get_all_files origin_path.first, origin_path.last
+    #    render "index.coffee.erb"
+    #  }
+    #end
 
 
 =begin

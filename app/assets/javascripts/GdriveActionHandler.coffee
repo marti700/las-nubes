@@ -2,7 +2,7 @@ class @GdriveActionHandler
   constructor: (@token) ->
 
   #loads the gdrive API client to start upload
-  uploadFile: (aFile, path, uploadStatus, progressBar) =>
+  uploadFile: (aFile, path, uploadStatus, progressBar, modifDOMEle) =>
     if path == '/'
       metadata = {
         'title': aFile.name
@@ -25,7 +25,14 @@ class @GdriveActionHandler
       data: JSON.stringify(metadata)
       success: (data, textStaus, jqXHRObject ) =>
         #upload the file
-        this.insertFile(aFile, jqXHRObject.getResponseHeader('Location'), @token.access_token, uploadStatus, progressBar)
+        this.insertFile(aFile, jqXHRObject.getResponseHeader('Location'), @token.access_token, uploadStatus, progressBar).success (data) ->
+          console.log data
+          childrens = if data.mimeType == 'application/vnd.google-apps.folder' then childrens = data.id else childrens = null
+          fr = "<tr class='ft-row' childrens= #{childrens}>"+
+                "<td> #{data.title}</td>"+
+                "<td> #{data.fileSize}</td>"+
+                "<td> #{data.mimeType}</td></tr>"
+          modifDOMEle.append fr #modifDOMEle is jquery object(a DOM element) passed to be modified
     })
 
   #upload the file to upload_uri obtainde by uploadFile function
@@ -53,7 +60,7 @@ class @GdriveActionHandler
 
       processData: false
       data: file
-      success: ()->
+      success: ->
         if uploadStatus #if uploadStatus was passed
           uploadStatus.text 'Done!'
     })
