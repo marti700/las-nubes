@@ -22,7 +22,8 @@ class FilesHandler
     elsif origin == 'dropbox'
       #dropbox.get_all_files path
     else
-      gdrive.get_files
+      #gdrive.get_files
+      dropbox.get_files
     end
   end
   

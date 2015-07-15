@@ -9,7 +9,13 @@ $(window).on 'load page:load', ->
     #appends the elements to the files table
     appendTableElements = (folder) ->
         for element, contents of gon.files[folder]
-          childrens = if contents.type == 'folder' then childrens = contents.original_path else childrens = null
+          if contents.type == 'folder'
+            #change spaces with '-'
+            #/[^\/]*.$/ takes the string after the last '/' which is the foder name
+            childrens = contents.original_path.match(/[^\/]*.$/)[0].toString().replace(/\s/g,'-')
+          else
+            childrens = ''
+          console.log contents.original_path.match(/[^\/]*.$/)[0].toString().replace(/\s/g,'-')
           tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
                         "<td> #{contents.name}</td>"+
                         "<td> #{contents.size}</td>"+
@@ -27,9 +33,9 @@ $(window).on 'load page:load', ->
 
     $('#files-table').on 'dblclick','.ft-row', ->
       if $(":nth-child(3)",this).text().indexOf("folder") != -1
-        $('#currentpath').text $(this).attr 'childrens'
+        $('#currentpath').text $(this).attr('childrens')
         removeTableElements()
-        appendTableElements $(this).attr('childrens')
+        appendTableElements $(this).attr('childrens').replace(/-/g,' ')
         console.log $(this).attr('childrens')
 
       else
@@ -87,7 +93,7 @@ $(window).on 'load page:load', ->
       if uploadTo == ''
         uploadTo = key
         previousValue = value
-      else if value > previousValue
+      else if value < previousValue
         uploadTo = key
 
     uploadTo

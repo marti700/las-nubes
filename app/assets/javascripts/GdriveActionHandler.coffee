@@ -26,7 +26,6 @@ class @GdriveActionHandler
       success: (data, textStaus, jqXHRObject ) =>
         #upload the file
         this.insertFile(aFile, jqXHRObject.getResponseHeader('Location'), @token.access_token, uploadStatus, progressBar).success (data) ->
-          console.log data
           childrens = if data.mimeType == 'application/vnd.google-apps.folder' then childrens = data.id else childrens = null
           fr = "<tr class='ft-row' childrens= #{childrens}>"+
                 "<td> #{data.title}</td>"+
