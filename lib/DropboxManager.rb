@@ -44,6 +44,7 @@ class DropboxManager
     mime_type = YAML.load_file('mime_type_extension.yml')
 
     result.each do |file|
+      file_id = Time.now.to_i.to_s[-4..-1]+rand(1000..9999).to_s+'drop'
       #file_name = /[^\/]*.$/.match(file[0]).to_s #Takes the word after the last '/' which is the file name
       analyze = file[1]['path'].split '/'
       file_name = analyze.last
@@ -59,16 +60,17 @@ class DropboxManager
 
       #Organize into the files hash
       if analyze.size == 2  #size 2 because slit split this '/photos' as ["","photos"]
-        files[:root].push LNFile.new file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
+        files[:root].push LNFile.new file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
       else
-        file_parent = analyze[(analyze.size)-2].to_s
-        puts "File parent is #{file_parent} get by #{file[0]} = #{ (analyze.size) -2 } analyze array is #{p analyze}"
+        #file_parent = analyze[(analyze.size)-2].to_s
+        file_parent = /.*(?<=\/)/.match(file[1]['path']).to_s
+        puts "File parent is #{file_parent} get by #{file[0]}"
         if files.has_key? file_parent
           puts "this key exist ---> #{file_parent} pushing --->#{file_name}"
-          files["#{file_parent}"].push LNFile.new file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
+          files["#{file_parent}"].push LNFile.new file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
         else
           puts "Creating key #{file_parent} and pushing --> #{file_name}"
-          files["#{file_parent}"] = [LNFile.new(file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox')]
+          files["#{file_parent}"] = [LNFile.new(file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox')]
         end
       end
     end

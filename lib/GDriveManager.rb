@@ -69,6 +69,7 @@ class GDriveManager
   #  all_files
   #end
   def get_files
+    #Gets all Files from the users gdrive
     id_prefix = 'a'
     all_files = Hash.new
     drive = self.client.discovered_api('drive', 'v2')
@@ -86,23 +87,25 @@ class GDriveManager
     end
   end
 
-  def clean_result result
+  def clean_result result, keys_are_folders_name = true
+    #transform users drive files metadata in LNFiles and groups them by folders
     mime_type = YAML.load_file('mime_type_extension.yml')
     files = { root: [] }
     result.each do |file|
+      file_id = Time.now.to_i.to_s[-4..-1]+rand(1000..9999).to_s+'driv'
       file_name = file.title
       file_size = file.file_size
       file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
-      file_id   = file.id
+      #file_id   = file.id
       #the each method will not process empty arrays
-      files[:root].push LNFile.new file_name, file_size, file_type, file.mimeType, file.id, 'gdrive' if file.parents.empty?
+      files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive' if file.parents.empty?
       file.parents.each do |parent|
         if parent.isRoot
-          files[:root].push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+          files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
         elsif files.has_key? parent['id']
-          files["#{parent['id']}"].push LNFile.new file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+          files["#{parent['id']}"].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
         else
-          files["#{parent['id']}"] = [LNFile.new(file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
+          files["#{parent['id']}"] = [LNFile.new(file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
         end
       end
     end

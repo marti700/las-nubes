@@ -1,6 +1,7 @@
 class LNFile
   attr_accessor :name, :size, :type, :download_link, :original_path, :origin, :mime_type
-  def initialize name, size, type, mime_type, original_path=nil, origin=nil, download_link=nil
+  def initialize id, name, size, type, mime_type, original_path=nil, origin=nil, download_link=nil
+    @id = id
     @name = name
     @size = size
     @type = type
