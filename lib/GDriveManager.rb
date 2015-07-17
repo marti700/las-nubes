@@ -96,16 +96,18 @@ class GDriveManager
       file_name = file.title
       file_size = file.file_size
       file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
-      #file_id   = file.id
+      
       #the each method will not process empty arrays
       files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive' if file.parents.empty?
       file.parents.each do |parent|
         if parent.isRoot
           files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
         elsif files.has_key? parent['id']
-          files["#{parent['id']}"].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+          #puts "this key exist ---> #{parent['id']} pushing --->#{file_name}"
+          files["#{parent['id'].to_s}"].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
         else
-          files["#{parent['id']}"] = [LNFile.new(file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
+          #puts "Creating key #{parent['id']} and pushing --> #{file_name}"
+          files["#{parent['id'].to_s}"] = [LNFile.new(file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
         end
       end
     end

@@ -35,7 +35,7 @@ $(window).on 'load page:load', ->
       if $(":nth-child(3)",this).text().indexOf("folder") != -1
         $('#currentpath').text $(this).attr('childrens')
         removeTableElements()
-        appendTableElements $(this).attr('childrens').replace(/-/g,' ')+'/'
+        appendTableElements $(this).attr('childrens').replace(/-/g,' ')
         console.log $(this).attr('childrens')
 
       else
@@ -93,7 +93,7 @@ $(window).on 'load page:load', ->
       if uploadTo == ''
         uploadTo = key
         previousValue = value
-      else if value < previousValue
+      else if value > previousValue
         uploadTo = key
 
     uploadTo

@@ -32,10 +32,7 @@ class DropboxManager
         files = files.merge(clean_result delta['entries']) do |key, oldval, newval|
           oldval + newval
         end
-        p files[:root]
-        #puts delta['has_more']
       end
-      #p files
       files
     end
 
@@ -62,14 +59,14 @@ class DropboxManager
       if analyze.size == 2  #size 2 because slit split this '/photos' as ["","photos"]
         files[:root].push LNFile.new file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
       else
-        #file_parent = analyze[(analyze.size)-2].to_s
-        file_parent = /.*(?<=\/)/.match(file[1]['path']).to_s
-        puts "File parent is #{file_parent} get by #{file[0]}"
+        path_from_file = /.*(?<=\/)/.match(file[1]['path']).to_s
+        file_parent = path_from_file[0..((path_from_file.length)-2)]
+        #puts "File parent is #{file_parent} get by #{file[0]}"
         if files.has_key? file_parent
-          puts "this key exist ---> #{file_parent} pushing --->#{file_name}"
+          #puts "this key exist ---> #{file_parent} pushing --->#{file_name}"
           files["#{file_parent}"].push LNFile.new file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox'
         else
-          puts "Creating key #{file_parent} and pushing --> #{file_name}"
+          #puts "Creating key #{file_parent} and pushing --> #{file_name}"
           files["#{file_parent}"] = [LNFile.new(file_id, file_name, file_size, file_type, file_mime, file[1]["path"], 'dropbox')]
         end
       end

@@ -22,8 +22,7 @@ class FilesHandler
     elsif origin == 'dropbox'
       #dropbox.get_all_files path
     else
-      #gdrive.get_files
-      dropbox.get_files
+      gdrive.get_files.merge(dropbox.get_files){ |key, oldval, newval| oldval + newval }
     end
   end
   
