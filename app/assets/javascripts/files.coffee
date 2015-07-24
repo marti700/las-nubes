@@ -4,6 +4,42 @@
 #=require GdriveActionHandler
 $(window).on 'load page:load', ->
   firstTime = true
+  # insert elements the first time the page loads 
+  firstLoad = ->
+    if gon.files != undefined
+        console.log gon.files
+        #appends the elements to the files table
+        for element, contents of gon.files['root']
+          if contents.type == 'folder'
+            #change spaces with '-'
+            #/[^\/]*.$/ takes the string after the last '/' which is the foder name
+            childrens = contents.original_path.replace(/\s/g,'-')
+            #puts elements into the tree view
+            treeViewNode = "<li class='tree-view-node' childrens = #{childrens}>"+
+                           "#{contents.name}</li>"
+            $('#tree').append treeViewNode
+
+          else
+            childrens = null
+          
+          console.log contents.original_path.replace(/\s/g,'-')
+          #puts elements into the files table
+          tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
+                      "<td> #{contents.name}</td>"+
+                      "<td> #{contents.size}</td>"+
+                      "<td> #{contents.type}</td></tr>"
+          $('#files-table').append tableRow
+        
+             
+  #refresh elemens of the files table
+  if firstTime
+    firstLoad()
+    firstTime = false
+
+  #============================================================================================
+  #************************************ Listing Files *****************************************
+  #============================================================================================
+
   if gon.files != undefined
     console.log gon.files
     #appends the elements to the files table
@@ -11,11 +47,10 @@ $(window).on 'load page:load', ->
         for element, contents of gon.files[folder]
           if contents.type == 'folder'
             #change spaces with '-'
-            #/[^\/]*.$/ takes the string after the last '/' which is the foder name
             childrens = contents.original_path.replace(/\s/g,'-')
           else
             childrens = ''
-          console.log contents.original_path.replace(/\s/g,'-')
+          
           tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
                         "<td> #{contents.name}</td>"+
                         "<td> #{contents.size}</td>"+
@@ -26,20 +61,54 @@ $(window).on 'load page:load', ->
     removeTableElements = ->
       $('.ft-row').empty()
 
-    #refresh elemens of the files table
-    if firstTime
-      appendTableElements('root')
-      firstTime = false
-
+    
     $('#files-table').on 'dblclick','.ft-row', ->
       if $(":nth-child(3)",this).text().indexOf("folder") != -1
-        $('#currentpath').text $(this).attr('childrens')
+        $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
         removeTableElements()
         appendTableElements $(this).attr('childrens').replace(/-/g,' ')
         console.log $(this).attr('childrens')
 
       else
         console.log 'Downloading'
+  
+  #============================================================================================
+  #********************************** Listing Files End ***************************************
+  #============================================================================================
+  
+  #============================================================================================
+  #************************************** Tree View *******************************************
+  #============================================================================================
+  #shows folders contents (just folders)
+  $('#tree').on 'click','.tree-view-node', (event)->
+    return -1 if $(this).children('ul').length > 0 #if there is an ul don't do anything
+    nodeChildren = $("<ul></ul>")
+    for element, contents  of gon.files[$(this).attr('childrens').replace(/-/g,' ')]
+      if contents.type == 'folder'
+        childrens = contents.original_path.replace(/\s/g, '-')
+        newChilds = "<li class='tree-view-node' childrens=#{childrens}>"+
+                    "#{contents.name}</li>"
+        nodeChildren.append newChilds
+    
+    console.log $(this).children()
+    console.log nodeChildren.children('li')
+    console.log nodeChildren.children('li').length
+    $(this).append nodeChildren if nodeChildren.children('li').length > 0
+    #this event handler were being called twice which lead to repeated child nodes
+    event.stopPropagation() #prevents this event handler for being called twice
+  
+  #Update files table elements (show folder's files in the file table)
+  $('#tree').on 'dblclick', '.tree-view-node', (event)->
+    $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
+    removeTableElements()
+    appendTableElements($(this).attr('childrens').replace(/-/g, ' '))
+    #this event handler were being called twice which lead to repeated child nodes
+    event.stopPropagation() #prevents this event handler for being called twice
+
+  
+  #============================================================================================
+  #*********************************** Tree View End ******************************************
+  #============================================================================================
 
   #deals with jquery file upload (see https://github.com/blueimp/jQuery-File-Upload/wiki/API)
   #$("#uploadForm").fileupload
@@ -93,7 +162,7 @@ $(window).on 'load page:load', ->
       if uploadTo == ''
         uploadTo = key
         previousValue = value
-      else if value > previousValue
+      else if value < previousValue
         uploadTo = key
 
     uploadTo
