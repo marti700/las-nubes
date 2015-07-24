@@ -15,16 +15,15 @@ $(window).on 'load page:load', ->
             #/[^\/]*.$/ takes the string after the last '/' which is the foder name
             childrens = contents.original_path.replace(/\s/g,'-')
             #puts elements into the tree view
-            treeViewNode = "<li class='tree-view-node' childrens = #{childrens}>"+
+            treeViewNode = "<li class='tree-view-node' childrens = #{contents.origin}:#{childrens}>"+
                            "#{contents.name}</li>"
             $('#tree').append treeViewNode
 
           else
             childrens = null
           
-          console.log contents.original_path.replace(/\s/g,'-')
           #puts elements into the files table
-          tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
+          tableRow = "<tr class='ft-row' childrens = #{contents.origin}:#{childrens}>" +
                       "<td> #{contents.name}</td>"+
                       "<td> #{contents.size}</td>"+
                       "<td> #{contents.type}</td></tr>"
@@ -51,7 +50,7 @@ $(window).on 'load page:load', ->
           else
             childrens = ''
           
-          tableRow = "<tr class='ft-row' childrens = #{childrens}>" +
+          tableRow = "<tr class='ft-row' childrens = #{contents.origin}:#{childrens}>" +
                         "<td> #{contents.name}</td>"+
                         "<td> #{contents.size}</td>"+
                         "<td> #{contents.type}</td></tr>"
@@ -66,8 +65,10 @@ $(window).on 'load page:load', ->
       if $(":nth-child(3)",this).text().indexOf("folder") != -1
         $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
         removeTableElements()
-        appendTableElements $(this).attr('childrens').replace(/-/g,' ')
-        console.log $(this).attr('childrens')
+        #the childrens has the format cloudHandler:path the [^:]*.$ regexp
+        #will take the path or the childrens attribute string.
+        childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+        appendTableElements childs.replace(/-/g,' ')
 
       else
         console.log 'Downloading'
@@ -83,16 +84,14 @@ $(window).on 'load page:load', ->
   $('#tree').on 'click','.tree-view-node', (event)->
     return -1 if $(this).children('ul').length > 0 #if there is an ul don't do anything
     nodeChildren = $("<ul></ul>")
-    for element, contents  of gon.files[$(this).attr('childrens').replace(/-/g,' ')]
+    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+    for element, contents  of gon.files[childs.replace(/-/g,' ')]
       if contents.type == 'folder'
         childrens = contents.original_path.replace(/\s/g, '-')
-        newChilds = "<li class='tree-view-node' childrens=#{childrens}>"+
+        newChilds = "<li class='tree-view-node' childrens=#{contents.origin}:#{childrens}>"+
                     "#{contents.name}</li>"
         nodeChildren.append newChilds
     
-    console.log $(this).children()
-    console.log nodeChildren.children('li')
-    console.log nodeChildren.children('li').length
     $(this).append nodeChildren if nodeChildren.children('li').length > 0
     #this event handler were being called twice which lead to repeated child nodes
     event.stopPropagation() #prevents this event handler for being called twice
@@ -101,7 +100,11 @@ $(window).on 'load page:load', ->
   $('#tree').on 'dblclick', '.tree-view-node', (event)->
     $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
     removeTableElements()
-    appendTableElements($(this).attr('childrens').replace(/-/g, ' '))
+    #the childrens has the format cloudHandler:path the [^:]*.$ regexp
+    #will take the path or the childrens attribute string.
+    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+    appendTableElements childs.replace(/-/g,' ')
+
     #this event handler were being called twice which lead to repeated child nodes
     event.stopPropagation() #prevents this event handler for being called twice
 
@@ -155,18 +158,22 @@ $(window).on 'load page:load', ->
   #Decides where to upload the file
   #the file will be uploaded to the cloud account with
   #more free space
-  whereToUpload = (space_remaining) ->
-    uploadTo = ''
-    previousValue = 0
-    for key, value of space_remaining
-      if uploadTo == ''
-        uploadTo = key
-        previousValue = value
-      else if value < previousValue
-        uploadTo = key
+  whereToUpload = (path, space_remaining) ->
+    uploadAddress = {}
+    if path == '/'
+      uploadTo = ''
+      previousValue = 0
+      for key, value of space_remaining
+        if uploadTo == ''
+          uploadTo = key
+          previousValue = value
+        else if value > previousValue
+          uploadTo = key
+      uploadAddress = {cloudDrive: uploadTo, path: '/'}
+    else
+      uploadAddress = {cloudDrive: path.match(/^(gdrive|dropbox)/)[0], path: path.match(/[^:]*.$/)[0].replace(/-/, ' ')}
 
-    uploadTo
-
+    uploadAddress
 
   #binds a change event on the input type file the triggers the upload process by selecting a file
   $('#files-explorer').bind 'change', ->
@@ -179,15 +186,17 @@ $(window).on 'load page:load', ->
       success: (data, textStaus, jqXHRObject) ->
         cloudHandlers =  {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
         #takes the path where the file will be uploaded
-        if $('#currentpath').text() == '/'
-          uploadPath = '/'
-        else
-          uploadPath = $('#currentpath').text()
+        
+        #if $('#currentpath').text() == '/'
+        #  uploadPath = '/'
+        #else
+        #  uploadPath = $('#currentpath').text().replace(/-/g,' ')
 
         space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
         #uploads the file to the correct cloud drive, where the file is uploaded by default depends
-        #of the cloud account free space
-        cloudHandlers[(whereToUpload(space_remaining))].uploadFile(file, uploadPath, updateStatus[0], updateStatus[1], $("#files-table"))
+        #of the cloud account free space if the file is placed in root.
+        uploadTo = whereToUpload($('#currentpath').text(), space_remaining)
+        cloudHandlers[uploadTo.cloudDrive].uploadFile(file, uploadTo.path, updateStatus[0], updateStatus[1], $("#files-table"))
     })
   #============================================================================================
   #*************************************UPLOADS END********************************************
@@ -206,7 +215,6 @@ $(window).on 'load page:load', ->
   #send data to the server for folder creation
   $('#folder-create-button').click ->
     currentPath = $('#currentpath').text()
-    console.log currentPath
     data = {folder_name: $('#folder-name').val(), origin: currentPath}
     $.ajax({
       url: "/files/create_folder"
