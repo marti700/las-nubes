@@ -34,6 +34,8 @@ $(window).on 'load page:load', ->
   if firstTime
     firstLoad()
     firstTime = false
+    #tree = new TreeView('#tree-view')
+    console.log $('#tree-view > ul > li')
 
   #============================================================================================
   #************************************ Listing Files *****************************************
@@ -82,8 +84,13 @@ $(window).on 'load page:load', ->
   #============================================================================================
   #shows folders contents (just folders)
   $('#tree').on 'click','.tree-view-node', (event)->
-    return -1 if $(this).children('ul').length > 0 #if there is an ul don't do anything
-    nodeChildren = $("<ul></ul>")
+    if $(this).children('ul').length > 0 #if there is an ul don't do anything
+      $(this).children('ul').toggleClass 'expanded closed'
+      console.log $(this)
+      console.log $(this).children 'ul'
+      event.stopPropagation()
+      return -1
+    nodeChildren = $("<ul class='master-children-ul expanded'></ul>")
     childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
     for element, contents  of gon.files[childs.replace(/-/g,' ')]
       if contents.type == 'folder'

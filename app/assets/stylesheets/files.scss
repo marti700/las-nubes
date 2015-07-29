@@ -54,6 +54,17 @@ ul{
     background: #ECF4F9;
     height: 80%;
     margin-top: 3%;
+
+    .tree-view-node{
+      list-style-image: url("folder.png")
+    }
+
+    .expanded{
+      display: block;
+    }
+    .closed{
+      display: none;
+    }
 }
 div#settings > a{
     color: white;
