@@ -96,18 +96,31 @@ class GDriveManager
       file_name = file.title
       file_size = file.file_size
       file.mime_type == 'application/vnd.google-apps.folder'? file_type = 'folder' : file_type = file.file_extension
+      download_link = nil
+      #if the file has a export_links property means that it can only be downloaded using one of the links provided
+      #in the export links see: https://developers.google.com/drive/web/manage-downloads
+      if file.export_links
+        file_export = file.export_links.to_hash
+        file_export.each_pair do |key, value|
+          #if the export link match the file mime_type use that export link to as a download link
+          if file.mime_type.match(/(vnd.google-apps.document|vnd.google-apps.presentation|vnd.google-apps.spreadsheet)/)
+            download_link = value
+            break
+          end
+        end
+      end
       
       #the each method will not process empty arrays
-      files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive' if file.parents.empty?
+      files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive', download_link if file.parents.empty?
       file.parents.each do |parent|
         if parent.isRoot
-          files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+          files[:root].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive', download_link
         elsif files.has_key? parent['id']
           #puts "this key exist ---> #{parent['id']} pushing --->#{file_name}"
-          files["#{parent['id'].to_s}"].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive'
+          files["#{parent['id'].to_s}"].push LNFile.new file_id, file_name, file_size, file_type, file.mime_type, file.id, 'gdrive', download_link
         else
           #puts "Creating key #{parent['id']} and pushing --> #{file_name}"
-          files["#{parent['id'].to_s}"] = [LNFile.new(file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive')]
+          files["#{parent['id'].to_s}"] = [LNFile.new(file_id, file_name, file_size, file_type, file.mimeType, file.id, 'gdrive', download_link)]
         end
       end
     end

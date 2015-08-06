@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   get   'sessions/create', to: 'sessions#create', as: :sessions  
   post  'sessions/create'
   get   'sessions/new'
+  get   'files/get_access_tokens'
   
     # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

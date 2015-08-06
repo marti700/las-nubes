@@ -16,4 +16,5 @@
 //= require jquery-fileupload/vendor/tmpl
 //= require turbolinks
 //= require bootstrap-sprockets
+//= require download.js
 //= require_tree .

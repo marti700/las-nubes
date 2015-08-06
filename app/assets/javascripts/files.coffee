@@ -4,32 +4,50 @@
 #=require GdriveActionHandler
 $(window).on 'load page:load', ->
   firstTime = true
-  # insert elements the first time the page loads 
+  #Creates a google drive action object
+  gdriveAction = (token)->
+    gdriveHandler = new GdriveActionHandler(token)
+  #creates a dropbox action object
+  dropboxAction = (access_token) ->
+    dropboxHandler = new DropboxActionHandler(access_token)
+  cloudHandlers = {} # an object that will hold cloud drives action handlres instances
+  space_remaining = {} #represents the remainig space of the registrered cloud drives
+  $.ajax({
+    url: "/files/get_access_tokens"
+    type: "GET"
+    dataType: "json"
+    success: (data, textStaus, jqXHRObject) ->
+      cloudHandlers = {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
+      space_remaining = {gdrive: data.gdrive_space_remaining, dropbox: data.dropbox_space_remaining}
+    })
+  #insert elements the first time the page loads
   firstLoad = ->
     if gon.files != undefined
         console.log gon.files
         #appends the elements to the files table
         for element, contents of gon.files['root']
+          #change spaces with '-' to append childrens as an html attribute
+          childrens = contents.original_path
+          downloadLink = contents.download_link
+          #change spaces with '*$*36' to append name as an html attribute
+          name = contents.name
+          mimeType = contents.mime_type
+          size = contents.size
+
           if contents.type == 'folder'
-            #change spaces with '-'
-            #/[^\/]*.$/ takes the string after the last '/' which is the foder name
-            childrens = contents.original_path.replace(/\s/g,'-')
-            #puts elements into the tree view
-            treeViewNode = "<li class='tree-view-node' childrens = #{contents.origin}:#{childrens}>"+
+                        #puts elements into the tree view
+            treeViewNode = "<li class='tree-view-node' childrens='#{contents.origin}:#{childrens}'>"+
                            "#{contents.name}</li>"
             $('#tree').append treeViewNode
 
-          else
-            childrens = null
-          
           #puts elements into the files table
-          tableRow = "<tr class='ft-row' childrens = #{contents.origin}:#{childrens}>" +
+          tableRow = "<tr class='ft-row' size=#{size} childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
                       "<td> #{contents.name}</td>"+
                       "<td> #{contents.size}</td>"+
                       "<td> #{contents.type}</td></tr>"
           $('#files-table').append tableRow
-        
-             
+
+
   #refresh elemens of the files table
   if firstTime
     firstLoad()
@@ -37,99 +55,7 @@ $(window).on 'load page:load', ->
     #tree = new TreeView('#tree-view')
     console.log $('#tree-view > ul > li')
 
-  #============================================================================================
-  #************************************ Listing Files *****************************************
-  #============================================================================================
 
-  if gon.files != undefined
-    console.log gon.files
-    #appends the elements to the files table
-    appendTableElements = (folder) ->
-        for element, contents of gon.files[folder]
-          if contents.type == 'folder'
-            #change spaces with '-'
-            childrens = contents.original_path.replace(/\s/g,'-')
-          else
-            childrens = ''
-          
-          tableRow = "<tr class='ft-row' childrens = #{contents.origin}:#{childrens}>" +
-                        "<td> #{contents.name}</td>"+
-                        "<td> #{contents.size}</td>"+
-                        "<td> #{contents.type}</td></tr>"
-          $('#files-table').append tableRow
-
-    #remove all elemets from the files table
-    removeTableElements = ->
-      $('.ft-row').empty()
-
-    
-    $('#files-table').on 'dblclick','.ft-row', ->
-      if $(":nth-child(3)",this).text().indexOf("folder") != -1
-        $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
-        removeTableElements()
-        #the childrens has the format cloudHandler:path the [^:]*.$ regexp
-        #will take the path or the childrens attribute string.
-        childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
-        appendTableElements childs.replace(/-/g,' ')
-
-      else
-        console.log 'Downloading'
-  
-  #============================================================================================
-  #********************************** Listing Files End ***************************************
-  #============================================================================================
-  
-  #============================================================================================
-  #************************************** Tree View *******************************************
-  #============================================================================================
-  #shows folders contents (just folders)
-  $('#tree').on 'click','.tree-view-node', (event)->
-    if $(this).children('ul').length > 0 #if there is an ul don't do anything
-      $(this).children('ul').toggleClass 'expanded closed'
-      console.log $(this)
-      console.log $(this).children 'ul'
-      event.stopPropagation()
-      return -1
-    nodeChildren = $("<ul class='master-children-ul expanded'></ul>")
-    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
-    for element, contents  of gon.files[childs.replace(/-/g,' ')]
-      if contents.type == 'folder'
-        childrens = contents.original_path.replace(/\s/g, '-')
-        newChilds = "<li class='tree-view-node' childrens=#{contents.origin}:#{childrens}>"+
-                    "#{contents.name}</li>"
-        nodeChildren.append newChilds
-    
-    $(this).append nodeChildren if nodeChildren.children('li').length > 0
-    #this event handler were being called twice which lead to repeated child nodes
-    event.stopPropagation() #prevents this event handler for being called twice
-  
-  #Update files table elements (show folder's files in the file table)
-  $('#tree').on 'dblclick', '.tree-view-node', (event)->
-    $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
-    removeTableElements()
-    #the childrens has the format cloudHandler:path the [^:]*.$ regexp
-    #will take the path or the childrens attribute string.
-    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
-    appendTableElements childs.replace(/-/g,' ')
-
-    #this event handler were being called twice which lead to repeated child nodes
-    event.stopPropagation() #prevents this event handler for being called twice
-
-  
-  #============================================================================================
-  #*********************************** Tree View End ******************************************
-  #============================================================================================
-
-  #deals with jquery file upload (see https://github.com/blueimp/jQuery-File-Upload/wiki/API)
-  #$("#uploadForm").fileupload
-  #  add:(e, data) ->
-  #    data.context = $(tmpl("template-upload", data.files[0]))
-  #    $("#uploadForm").append(data.context)
-  #    data.submit()
-  #  progress: (e,data) ->
-  #    if data.context
-  #      progress = parseInt(data.loaded / data.total *100, 10)
-  #      data.context.find(".bar").css("width", progress + '%')
 
   #============================================================================================
   #********************************UPLOADS-DOWNLOADS-STATUS************************************
@@ -150,17 +76,109 @@ $(window).on 'load page:load', ->
   #****************************UPLOADS-DOWNLOADS-STATUS-END************************************
   #============================================================================================
 
+  #============================================================================================
+  #************************************ Listing Files *****************************************
+  #============================================================================================
+
+  if gon.files != undefined
+    console.log gon.files
+    #appends the elements to the files table
+    appendTableElements = (folder) ->
+        for element, contents of gon.files[folder]
+          #change spaces with '-' to append childrens as an html attribute
+          childrens = contents.original_path
+          downloadLink = contents.download_link
+          name = contents.name
+          mimeType = contents.mime_type
+          size = contents.size
+
+          tableRow = "<tr class='ft-row' size=#{size} childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
+                        "<td> #{contents.name}</td>"+
+                        "<td> #{contents.size}</td>"+
+                        "<td> #{contents.type}</td></tr>"
+          $('#files-table').append tableRow
+
+    #remove all elemets from the files table
+    removeTableElements = ->
+      $('.ft-row').empty()
+
+
+    $('#files-table').on 'dblclick','.ft-row', ->
+      if $(":nth-child(3)",this).text().indexOf("folder") != -1
+        $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
+        removeTableElements()
+        #the childrens has the format cloudHandler:path the [^:]*.$ regexp
+        #will take the path or the childrens attribute string.
+        childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+        appendTableElements childs
+
+      else
+        #Download the file
+        console.log 'Downloading'
+        #cloudHandlers holds instances of the cloud action handlers
+        #is posible to say cloudHandlers['cloudriveName] and the call a method on it
+        downloadPath = $(this).attr('childrens').match(/[^:]*.$/)[0]
+        fileName = $(this).attr('name')
+        mimeType = $(this).attr('mime-type')
+        downloadUrl = $(this).attr('download-link')
+        size = $(this).attr('size')
+        #get the status text and the boostrap based progress bar to pass it later
+        #to the method that will excute de download in order to display the progress
+        #to the user
+        updateStatus = showStatus($(this).attr('name'), "Downloading")
+        #start download
+        cloudHandlers['gdrive'].download(downloadPath, fileName, mimeType, downloadUrl, updateStatus[0], updateStatus[1], size)
+
+  #============================================================================================
+  #********************************** Listing Files End ***************************************
+  #============================================================================================
+
+  #============================================================================================
+  #************************************** Tree View *******************************************
+  #============================================================================================
+  #shows folders contents (just folders)
+  $('#tree').on 'click','.tree-view-node', (event)->
+    if $(this).children('ul').length > 0 #if there is an ul don't do anything
+      $(this).children('ul').toggleClass 'expanded closed'
+      console.log $(this)
+      console.log $(this).children 'ul'
+      event.stopPropagation()
+      return -1
+
+    nodeChildren = $("<ul class='master-children-ul expanded'></ul>")
+    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+
+    for element, contents  of gon.files[childs]
+      if contents.type == 'folder'
+        childrens = contents.original_path
+        newChilds = "<li class='tree-view-node' childrens='#{contents.origin}:#{childrens}'>"+
+                    "#{contents.name}</li>"
+        nodeChildren.append newChilds
+
+    $(this).append nodeChildren if nodeChildren.children('li').length > 0
+    #this event handler were being called twice which lead to repeated child nodes
+    event.stopPropagation() #prevents this event handler for being called twice
+
+  #Update files table elements (show folder's files in the file table)
+  $('#tree').on 'dblclick', '.tree-view-node', (event)->
+    $('#currentpath').text $(this).attr('childrens') #keeps track of the current path
+    removeTableElements()
+    #the childrens has the format cloudHandler:path the [^:]*.$ regexp
+    #will take the path or the childrens attribute string.
+    childs = $(this).attr('childrens').match(/[^:]*.$/)[0]
+    appendTableElements childs
+
+    #this event handler were being called twice which lead to repeated child nodes
+    event.stopPropagation() #prevents this event handler for being called twice
+
+
+  #============================================================================================
+  #*********************************** Tree View End ******************************************
+  #============================================================================================
 
   #=============================================================================================
   #*******************************************UPLOADS*******************************************
   #=============================================================================================
-  #Uploads content to google drive
-  gdriveAction = (token)->
-    gdriveHandler = new GdriveActionHandler(token)
-    #gdriveHandler.authenticate()
-  #upload content to dropbox
-  dropboxAction = (access_token) ->
-    dropboxHandler = new DropboxActionHandler(access_token)
 
   #Decides where to upload the file
   #the file will be uploaded to the cloud account with
@@ -178,7 +196,7 @@ $(window).on 'load page:load', ->
           uploadTo = key
       uploadAddress = {cloudDrive: uploadTo, path: '/'}
     else
-      uploadAddress = {cloudDrive: path.match(/^(gdrive|dropbox)/)[0], path: path.match(/[^:]*.$/)[0].replace(/-/, ' ')}
+      uploadAddress = {cloudDrive: path.match(/^(gdrive|dropbox)/)[0], path: path.match(/[^:]*.$/)[0]}
 
     uploadAddress
 
@@ -186,25 +204,10 @@ $(window).on 'load page:load', ->
   $('#files-explorer').bind 'change', ->
     file = document.getElementById('files-explorer').files[0]
     updateStatus = showStatus(file.name, "Uploading")
-    $.ajax({
-      url: "/files/upload"
-      type: "GET"
-      dataType: "json"
-      success: (data, textStaus, jqXHRObject) ->
-        cloudHandlers =  {dropbox: dropboxAction(data.dropbox_access_token), gdrive: gdriveAction(data.google_access_token)}
-        #takes the path where the file will be uploaded
-        
-        #if $('#currentpath').text() == '/'
-        #  uploadPath = '/'
-        #else
-        #  uploadPath = $('#currentpath').text().replace(/-/g,' ')
-
-        space_remaining = { gdrive: data.gdrive_remaining_space, dropbox: data.dropbox_remaining_space }
-        #uploads the file to the correct cloud drive, where the file is uploaded by default depends
-        #of the cloud account free space if the file is placed in root.
-        uploadTo = whereToUpload($('#currentpath').text(), space_remaining)
-        cloudHandlers[uploadTo.cloudDrive].uploadFile(file, uploadTo.path, updateStatus[0], updateStatus[1], $("#files-table"))
-    })
+    #uploads the file to the correct cloud drive, where the file is uploaded by default depends
+    #of the cloud account free space if the file is placed in root.
+    uploadTo = whereToUpload($('#currentpath').text(), space_remaining)
+    cloudHandlers[uploadTo.cloudDrive].uploadFile(file, uploadTo.path, updateStatus[0], updateStatus[1], $("#files-table"))
   #============================================================================================
   #*************************************UPLOADS END********************************************
   #============================================================================================
