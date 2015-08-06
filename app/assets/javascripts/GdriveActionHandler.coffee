@@ -64,9 +64,9 @@ class @GdriveActionHandler
           uploadStatus.text 'Done!'
     })
 
-  download: (fileId, fileTitle, fileMimeType, fileDownloadUrl, downloadStatus, progressBar,fileSize) =>
+  download: (fileId, fileTitle, fileMimeType, fileDownloadUrl, downloadStatus, progressBar) =>
     #Download a File from google drive
-    #fileId is the file id of the file to be downloaded
+    #fileId is the  drive file id of the file to be downloaded
     #fileTitle is the file name provided by the caller, when downloaded the file will have this name
     #fileMimeType is the mime type of the file to be downloaded (if not sure check the metadata of the file)
     #fileDownloadUrl is the url of the file export link to download documents created in drive if
@@ -81,12 +81,8 @@ class @GdriveActionHandler
 
     #updates the progress bar element
     xhr.onprogress = (evt)->
-      #console.log evt.lengthComputable
-      #console.log evt.loaded
-      #console.log evt.total
       if evt.lengthComputable && progressBar #if progressBar was passed
         progress = parseInt((evt.loaded/evt.total) *100)
-        console.log progress
         progressBar.css 'width',"#{progress}%"
         progressBar.text "#{progress}%"
 

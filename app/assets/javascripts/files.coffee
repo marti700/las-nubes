@@ -32,7 +32,6 @@ $(window).on 'load page:load', ->
           #change spaces with '*$*36' to append name as an html attribute
           name = contents.name
           mimeType = contents.mime_type
-          size = contents.size
 
           if contents.type == 'folder'
                         #puts elements into the tree view
@@ -41,7 +40,7 @@ $(window).on 'load page:load', ->
             $('#tree').append treeViewNode
 
           #puts elements into the files table
-          tableRow = "<tr class='ft-row' size=#{size} childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
+          tableRow = "<tr class='ft-row' childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
                       "<td> #{contents.name}</td>"+
                       "<td> #{contents.size}</td>"+
                       "<td> #{contents.type}</td></tr>"
@@ -90,12 +89,11 @@ $(window).on 'load page:load', ->
           downloadLink = contents.download_link
           name = contents.name
           mimeType = contents.mime_type
-          size = contents.size
 
-          tableRow = "<tr class='ft-row' size=#{size} childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
-                        "<td> #{contents.name}</td>"+
-                        "<td> #{contents.size}</td>"+
-                        "<td> #{contents.type}</td></tr>"
+          tableRow = "<tr class='ft-row' childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
+                     "<td> #{contents.name}</td>"+
+                     "<td> #{contents.size}</td>"+
+                     "<td> #{contents.type}</td></tr>"
           $('#files-table').append tableRow
 
     #remove all elemets from the files table
@@ -114,20 +112,22 @@ $(window).on 'load page:load', ->
 
       else
         #Download the file
-        console.log 'Downloading'
         #cloudHandlers holds instances of the cloud action handlers
         #is posible to say cloudHandlers['cloudriveName] and the call a method on it
         downloadPath = $(this).attr('childrens').match(/[^:]*.$/)[0]
         fileName = $(this).attr('name')
         mimeType = $(this).attr('mime-type')
         downloadUrl = $(this).attr('download-link')
-        size = $(this).attr('size')
+        cloudDrive = $(this).attr('childrens').match(/(dropbox|gdrive)/)[0].toString()
         #get the status text and the boostrap based progress bar to pass it later
         #to the method that will excute de download in order to display the progress
         #to the user
         updateStatus = showStatus($(this).attr('name'), "Downloading")
         #start download
-        cloudHandlers['gdrive'].download(downloadPath, fileName, mimeType, downloadUrl, updateStatus[0], updateStatus[1], size)
+        if cloudDrive == 'gdrive'
+         cloudHandlers['gdrive'].download(downloadPath, fileName, mimeType, downloadUrl, updateStatus[0], updateStatus[1])
+        else
+          cloudHandlers['dropbox'].download(downloadPath, mimeType, updateStatus[0], updateStatus[1])
 
   #============================================================================================
   #********************************** Listing Files End ***************************************
