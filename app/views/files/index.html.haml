@@ -29,13 +29,14 @@
             %button.btn.btn-default#folder-create-button Create Folder
       %p#currentpath.hidden /
       #table-container
-        %table.table.table-hover.table-bordered#files-table
-          %tr
-            %th Name
-            %th Size
-            %th Type
-          %tr
-            //=render "updatedFileList"
+        %table.table.table-hover.table-striped#files-table
+          %thead
+            %tr
+              %th Name
+              %th Size
+              %th Type
+          %tbody#files-table-body.rowlink{'data-link' => 'row'}
+
       #status-wrapper
         #status
           %h3 status

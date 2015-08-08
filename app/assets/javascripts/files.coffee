@@ -23,29 +23,28 @@ $(window).on 'load page:load', ->
   #insert elements the first time the page loads
   firstLoad = ->
     if gon.files != undefined
-        console.log gon.files
-        #appends the elements to the files table
-        for element, contents of gon.files['root']
-          #change spaces with '-' to append childrens as an html attribute
-          childrens = contents.original_path
-          downloadLink = contents.download_link
-          #change spaces with '*$*36' to append name as an html attribute
-          name = contents.name
-          mimeType = contents.mime_type
+      console.log gon.files
+      #appends the elements to the files table
+      for element, contents of gon.files['root']
+        #change spaces with '-' to append childrens as an html attribute
+        childrens = contents.original_path
+        downloadLink = contents.download_link
+        #change spaces with '*$*36' to append name as an html attribute
+        name = contents.name
+        mimeType = contents.mime_type
 
-          if contents.type == 'folder'
-                        #puts elements into the tree view
-            treeViewNode = "<li class='tree-view-node' childrens='#{contents.origin}:#{childrens}'>"+
-                           "#{contents.name}</li>"
-            $('#tree').append treeViewNode
+        if contents.type == 'folder'
+                      #puts elements into the tree view
+          treeViewNode = "<li class='tree-view-node' childrens='#{contents.origin}:#{childrens}'>"+
+                         "#{contents.name}</li>"
+          $('#tree').append treeViewNode
 
-          #puts elements into the files table
-          tableRow = "<tr class='ft-row' childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
-                      "<td> #{contents.name}</td>"+
-                      "<td> #{contents.size}</td>"+
-                      "<td> #{contents.type}</td></tr>"
-          $('#files-table').append tableRow
-
+        #puts elements into the files table
+        tableRow = "<tr class='ft-row' childrens='#{contents.origin}:#{childrens}' download-link='#{downloadLink}' name='#{name}' mime-type='#{mimeType}'>" +
+                    "<td> #{contents.name}</td>"+
+                    "<td> #{contents.size}</td>"+
+                    "<td> #{contents.type}</td></tr>"
+        $('#files-table-body').append tableRow
 
   #refresh elemens of the files table
   if firstTime
@@ -94,7 +93,7 @@ $(window).on 'load page:load', ->
                      "<td> #{contents.name}</td>"+
                      "<td> #{contents.size}</td>"+
                      "<td> #{contents.type}</td></tr>"
-          $('#files-table').append tableRow
+          $('#files-table-body').append tableRow
 
     #remove all elemets from the files table
     removeTableElements = ->
@@ -232,23 +231,6 @@ $(window).on 'load page:load', ->
       data: data
       dataType: "script"
     })
-
-#when a item of the table is dobule clicked if the item is a folder,
-#folder content will be displayed, if item is a file it will be downloaded
-#$(document).on "dblclick page:load", "#files-table", ->
-#  data = {pathOrigin: this.getAttribute("origin").toString()}
-#  $('#currentpath').text(this.getAttribute("origin").toString())
-#  console.log $('#currentpath').text()
-#  if $(":nth-child(3)",this).text().indexOf("folder") != -1
-#    console.log $(this)
-#    $.ajax({
-#      url: "/files/index"
-#      type: "GET"
-#      data: data
-#      dataType: "script"
-#    })
-#  else
-#    alert $(":nth-child(3)",this).text()
   #====================================================================================================
   #==========================================FOLDERS END***********************************************
   #===================================================================================================
